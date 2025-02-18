@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Guest {{ .room_name }}</title>
+        <link href="/css/main.css" rel="stylesheet">
+    </head>
+    <body>
+        {{if .user_error }}
+        <h1>{{ .user_error }}</h1>
+        {{end}}
+        <form action="/join/room/{{ .room_name }}" method="POST">
+            <input type="text" name="username" placeholder="username" value="">
+            <input type="hidden" name="csrf" value="{{ .csrf }}">
+            <input type="password" name="password" placeholder="password" value="">
+            <button type="submit">submit</button>
+        </form>
+    </body>
+</html>

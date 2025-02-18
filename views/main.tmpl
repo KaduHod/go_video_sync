@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Sync Video</title>
+        <link href="/css/main.css" rel="stylesheet">
+    </head>
+    <body>
+        {{if .user_error }}
+        <h2>{{ .user_error }}</h2>
+        {{end}}
+        <form action="/user" method="POST">
+            <input type="text" name="name" value="">
+            <input type="hidden" name="csrf" value="{{ .csrf }}">
+            <button type="submit">Submit</button>
+        </form>
+    </body>
+</html>

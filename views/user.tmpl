@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Sync {{index .sess "user_name" }}</title>
+        <link href="/css/main.css" rel="stylesheet">
+    </head>
+    <body>
+        <h1>Hi, {{index .sess "user_name" }}</h1>
+        {{if .user_error }}
+        <h2>{{ .user_error }}</h2>
+        {{end}}
+        <form action="/app/room/create" method="POST">
+            <h1>Transmit</h1>
+            <input type="text" name="name" placeholder="Room name" value="">
+            <input type="hidden" name="csrf" value="{{ .csrf }}">
+            <input type="password" name="password" placeholder="Room password" value="">
+            <button type="submit">Create room</button>
+        </form>
+<!--        <form action="/app/room/join" method="POST">
+            <h1>Join</h1>
+            <input type="hidden" name="csrf" value="{{ .csrf }}">
+            <input type="text" name="name" placeholder="Room name" value="">
+            <input type="password" name="password" placeholder="Room password" value="">
+            <button type="submit">Join room</button>
+            </form>-->
+    </body>
+</html>
