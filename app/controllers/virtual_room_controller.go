@@ -17,9 +17,7 @@ type VirtualRoomController struct {
     virtualRoomsManager *virtualrooms.VirtualRoomsManager
 }
 
-func NewVirtualRoomController() *VirtualRoomController {
-    manager := virtualrooms.NewVirtualRoomsManager()
-    manager.Init()
+func NewVirtualRoomController(manager *virtualrooms.VirtualRoomsManager) *VirtualRoomController {
     return &VirtualRoomController{
         virtualRoomsManager: manager,
     }

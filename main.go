@@ -1,10 +1,12 @@
 package main
+
 import (
 	"fmt"
 	"html/template"
 	"io"
 	"kaduhod/video-sync/app/controllers"
 	app_middleware "kaduhod/video-sync/app/middlewares"
+	virtualrooms "kaduhod/video-sync/app/virtual_rooms"
 	"net/http"
 
 	"github.com/gorilla/sessions"
@@ -19,7 +21,7 @@ import (
 * Pause
 * Forward
 * Backward
-*/
+ */
 type Template struct {
     templates *template.Template
 }
@@ -59,7 +61,10 @@ func main() {
     }))
     e.Renderer = t
     e.Static("/public", "public")
-    vrmController := controllers.NewVirtualRoomController()
+    manager := virtualrooms.NewVirtualRoomsManager()
+    manager.Init()
+    vrmController := controllers.NewVirtualRoomController(manager)
+    sseControler := controllers.NewSSEController(manager)
     e.GET("/", vrmController.Index)
     e.POST("/user", vrmController.NewUser)
     e.GET("/join/room/:roomName", vrmController.GuestRoomIndex)
@@ -69,5 +74,6 @@ func main() {
     sessionGroup.GET("/user", vrmController.IndexUsers)
     sessionGroup.POST("/room/create", vrmController.NewRoom)
     sessionGroup.GET("/room/:roomName", vrmController.RoomIndex)
+    sessionGroup.GET("/sse/:roomName", sseControler.StreamRoom)
     e.Logger.Fatal(e.Start(":3003"))
 }
