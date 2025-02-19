@@ -58,12 +58,14 @@ func (self *SSEController) StreamRoom(c echo.Context) error {
 }
 func (self *SSEController) Post(c echo.Context) error {
     userName := c.FormValue("user_name")
+    // sender
     user, err := self.virtualRoomsManager.GetUser(userName)
     if err != nil {
         fmt.Println(err)
         return c.String(400, err.Error())
     }
     roomName := c.Param("roomName")
+    // roomDest
     room, err := self.virtualRoomsManager.GetRoom(roomName)
     if err != nil {
         fmt.Println(err)
