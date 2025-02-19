@@ -196,3 +196,13 @@ func (self *VirtualRoomsManager) GetUser(userName string) (User, error) {
     utils.JsonDecode(userStr, &user)
     return user, nil
 }
+func (self *VirtualRoomsManager) GetUserById(userId string) (User, error) {
+    var user User
+    userStr, err := self.RedisConn.Get(self.Ctx, "user:"+userId).Result()
+    if err != nil {
+        fmt.Println(err)
+        return user, err
+    }
+    utils.JsonDecode(userStr, &user)
+    return user, nil
+}

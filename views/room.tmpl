@@ -7,11 +7,18 @@
         <link href="/public/css/main.css" rel="stylesheet">
     </head>
     <body>
-        <h1>Room: {{ .room.Name }}</h1>
+        {{ if eq .user_type "Admin" }}
+        <h1>Bem-vindo, Admin da sala: {{ .room.Name }}</h1>
         <a href="{{ .room.GuestLink }}">Guest link</a>
+        {{ else }}
+        <h1>Room: {{ .room.Name }}</h1>
+        {{ end }}
         <input name="csrf" id="csrf" type="hidden" value="{{ .csrf }}">
         <button id="pauseButton">Pausar</button>
         <button id="resumeButton">Continuar</button>
+        {{ if eq .user_type "Admin" }}
+        <button id="close-room">Parar</button>
+        {{end}}
     </body>
     <script>
         window.room_name = "{{ .room.Name }}";

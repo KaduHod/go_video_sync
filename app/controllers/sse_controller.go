@@ -86,6 +86,56 @@ func (self *SSEController) Post(c echo.Context) error {
     msg.Value = c.FormValue("action")
     msg.Sender = user
     msg.Timestamp = time.Now()
-    room.GetListenerWrite() <- msg
+    room.GetListenerWriter() <- msg
+    return c.String(200, "OK")
+}
+func (self *SSEController) CloseRoom(c echo.Context) error {
+    roomRedis, err := self.virtualRoomsManager.GetRoom(c.Param("roomName"))
+    if err != nil {
+        fmt.Println(err)
+        return c.String(400, err.Error())
+    }
+    adminUserRedis, err := self.virtualRoomsManager.GetUserById(roomRedis.AdminId)
+    if err != nil {
+        fmt.Println(err)
+        return c.String(400, err.Error())
+    }
+    guestUserRedis, err := self.virtualRoomsManager.GetUserById(roomRedis.GuestId)
+    if err != nil {
+        fmt.Println(err)
+        return c.String(400, err.Error())
+    }
+    roomRedisSse := self.sseManager.Rooms[roomRedis.Name]
+    if roomRedisSse == nil {
+        fmt.Println("Room not found")
+        return c.String(400, "Room not found")
+    }
+    guest := self.sseManager.Users[guestUserRedis.Name]
+    admin := self.sseManager.Users[adminUserRedis.Name]
+    if admin == nil {
+        fmt.Println("Admin not found")
+        return c.String(400, "Admin not found")
+    }
+    if guest == nil {
+       fmt.Println("Guest not found")
+       return c.String(400, "User not found")
+    }
+    if err := guest.CloseSSE(); err != nil {
+        fmt.Println(err)
+        return c.String(400, err.Error())
+    }
+    if err := admin.CloseSSE(); err != nil {
+        fmt.Println(err)
+        return c.String(400, err.Error())
+    }
+    room := self.sseManager.Rooms[roomRedis.Name]
+    if room == nil {
+        fmt.Println("Room not found")
+        return c.String(400, "Room not found")
+    }
+    self.virtualRoomsManager.DeleteKey("roomRedis:"+roomRedis.Name)
+    room.Close()
+    self.sseManager.DeleteRoom(roomRedis.Name)
+    fmt.Println("Room closed >> ", roomRedis.Name)
     return c.String(200, "OK")
 }

@@ -8,7 +8,6 @@ import (
 
 	"github.com/labstack/echo/v4"
 )
-
 type SSEManager struct {
     Rooms map[string]*Room
     Users map[string]*User
@@ -23,25 +22,23 @@ func (self *SSEManager) AddUserSSE(c *echo.Context, user *User) {
     user.Ctx = c
     self.Users[user.Id] = user
 }
-func (self *SSEManager) SSEMessageFromJson(data string) (SSEMessage, error) {
-    var message SSEMessage
-    err := json.Unmarshal([]byte(data), &message)
-    return message, err
+func (self *SSEManager) DeleteRoom(roomName string) {
+    delete(self.Rooms, roomName)
 }
 func (self *SSEManager) AddRoomSSE(room *Room) {
     self.Rooms[room.Name] = room
 }
 func (self *SSEManager) Send(value SSEMessage, userDest *User) {
-    // identificar quem enviou
     json, err := utils.JsonStringify(value)
     if err != nil {
         fmt.Println(err)
         return
     }
     context := *userDest.Ctx
-    _, err = context.Response().Write([]byte(json))
+    _, err = fmt.Fprintf(context.Response(), "data: %s\n\n", json)
     if err != nil {
         fmt.Println(err)
+        return
     }
     context.Response().Flush()
 }

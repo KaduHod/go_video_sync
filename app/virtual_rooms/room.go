@@ -10,14 +10,17 @@ type Room struct {
     GuestId string `json:"guest"`
     Password string `json:"password"`
     GuestLink template.URL `json:"guest_link"`
-    listener chan SSEMessage
+    listener chan SSEMessage `json:"-"`
 }
 func (self *Room) GetListener() <-chan SSEMessage {
     return self.listener
 }
-func (self *Room) GetListenerWrite() chan <- SSEMessage {
+func (self *Room) GetListenerWriter() chan <- SSEMessage {
     return self.listener
 }
 func (self *Room) SetListener(listener chan SSEMessage) {
     self.listener = listener
+}
+func (self *Room) Close() {
+    close(self.listener)
 }

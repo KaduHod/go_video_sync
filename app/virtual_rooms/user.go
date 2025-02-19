@@ -1,8 +1,6 @@
 package virtualrooms
 
 import (
-	"fmt"
-
 	"github.com/labstack/echo/v4"
 )
 type VideoUpdate struct {
@@ -15,11 +13,7 @@ type User struct {
     Name string `json:"name"`
     Ctx *echo.Context `json:"-"`
 }
-func (self *User) Send(value string) error {
+func (self *User) CloseSSE() error {
     ctx := *self.Ctx
-    _, err := ctx.Response().Write([]byte(value))
-    if err != nil {
-        fmt.Println(err)
-    }
-    return err
+    return ctx.String(200, "Closed")
 }

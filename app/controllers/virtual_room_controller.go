@@ -166,11 +166,13 @@ func (self *VirtualRoomController) RoomIndex(c echo.Context) error {
     }
     pageData["room"] = room
     pageData["user"] = user
+    pageData["user_type"] = "Admin"
     return c.Render(http.StatusOK,"room.tmpl", pageData)
 }
 func (self *VirtualRoomController) GuestRoomIndex(c echo.Context) error {
     pageData := GetPageData(c)
     pageData["room_name"] = c.Param("roomName")
+    pageData["user_type"] = "Guest"
     return c.Render(200, "guest.tmpl", pageData)
 }
 func (self *VirtualRoomController) GuestRoomJoin(c echo.Context) error {
