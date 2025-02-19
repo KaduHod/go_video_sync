@@ -3,6 +3,7 @@ package controllers
 import (
 	"fmt"
 	virtualrooms "kaduhod/video-sync/app/virtual_rooms"
+	"time"
 
 	"github.com/gorilla/sessions"
 	"github.com/labstack/echo-contrib/session"
@@ -38,7 +39,6 @@ func (self *SSEController) StreamRoom(c echo.Context) error {
         return c.String(400, err.Error())
     }
     roomName := c.Param("roomName")
-    fmt.Println(roomName, user)
     room, err := self.virtualRoomsManager.GetRoom(roomName)
     if err != nil {
         fmt.Println(err)
@@ -46,13 +46,15 @@ func (self *SSEController) StreamRoom(c echo.Context) error {
     }
     user.Ctx = &c
     if room.AdminId == user.Id {
+        listener := make(chan virtualrooms.SSEMessage)
+        room.SetListener(listener)
         self.sseManager.AddRoomSSE(&room)
+        go self.sseManager.StartRoom(&room)
     }
     self.sseManager.AddUserSSE(&c, &user)
     c.Response().Header().Set(echo.HeaderContentType, "text/event-stream")
     c.Response().Header().Set(echo.HeaderCacheControl, "no-cache")
     c.Response().Header().Set(echo.HeaderConnection, "keep-alive")
-
     <-c.Request().Context().Done()
     return nil
 }
@@ -66,12 +68,24 @@ func (self *SSEController) Post(c echo.Context) error {
     }
     roomName := c.Param("roomName")
     // roomDest
-    room, err := self.virtualRoomsManager.GetRoom(roomName)
-    if err != nil {
+    room, ok := self.sseManager.Rooms[roomName]
+    if room == nil {
+        fmt.Println("Room not found")
+        return c.String(400, "Room not found")
+    }
+    if !ok {
         fmt.Println(err)
         return c.String(400, err.Error())
     }
-    action := c.FormValue("action")
-    fmt.Println("params", action, user, room)
+    if room.GetListener() == nil {
+        fmt.Println("Channel[listener] not initialized")
+        return c.String(400, "Channel not initialized")
+    }
+    msg := virtualrooms.SSEMessage{}
+    msg.RoomName = roomName
+    msg.Value = c.FormValue("action")
+    msg.Sender = user
+    msg.Timestamp = time.Now()
+    room.GetListenerWrite() <- msg
     return c.String(200, "OK")
 }

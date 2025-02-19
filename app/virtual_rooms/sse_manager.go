@@ -3,6 +3,8 @@ package virtualrooms
 import (
 	"encoding/json"
 	"fmt"
+	"kaduhod/video-sync/app/utils"
+	"time"
 
 	"github.com/labstack/echo/v4"
 )
@@ -27,42 +29,43 @@ func (self *SSEManager) SSEMessageFromJson(data string) (SSEMessage, error) {
     return message, err
 }
 func (self *SSEManager) AddRoomSSE(room *Room) {
-    self.Rooms[room.Id] = room
+    self.Rooms[room.Name] = room
 }
-func (self *SSEManager) Send(value string, userDest *User) {
+func (self *SSEManager) Send(value SSEMessage, userDest *User) {
     // identificar quem enviou
-    _, err := SSEMessageFromJson(value)
+    json, err := utils.JsonStringify(value)
     if err != nil {
         fmt.Println(err)
         return
     }
     context := *userDest.Ctx
-    _, err = context.Response().Write([]byte(value))
+    _, err = context.Response().Write([]byte(json))
     if err != nil {
         fmt.Println(err)
     }
+    context.Response().Flush()
 }
 func (self *SSEManager) StartRoom(room *Room) {
     for {
         select {
-        case value, ok := <- room.listener:
+        case value, ok := <- room.GetListener():
             if !ok {
                 fmt.Println("Problema com o canal >> ", value)
+                return
             } else {
-                message, err := SSEMessageFromJson(value)
-                if err != nil {
-                    fmt.Println(err)
+                var destId string
+                if room.AdminId == value.Sender.Id {
+                    destId = room.GuestId
                 } else {
-                    var destId string
-                    if room.AdminId == message.SenderId {
-                        destId = room.GuestId
-                    } else {
-                        destId = room.AdminId
-                    }
-                    dest := self.Users[destId]
-                    admin := self.Users[room.AdminId]
-                    self.Send(value, dest)
+                    destId = room.AdminId
+                }
+                dest := self.Users[destId]
+                admin := self.Users[room.AdminId]
+                if admin != nil {
                     self.Send(value, admin)
+                }
+                if dest != nil {
+                    self.Send(value, dest)
                 }
             }
         }
@@ -75,13 +78,7 @@ func SSEMessageFromJson(data string) (SSEMessage, error) {
 }
 type SSEMessage struct {
     Value string `json:"value"`
-    SenderId string `json:"sender_id"`
     RoomName string `json:"room_name"`
-}
-func (self *SSEMessage) ToJson() (string, error) {
-    json, err := json.Marshal(self)
-    if err != nil {
-        return "", err
-    }
-    return string(json), nil
+    Sender User `json:"sender"`
+    Timestamp time.Time `json:"timestamp"`
 }

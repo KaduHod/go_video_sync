@@ -13,7 +13,7 @@ type VideoUpdate struct {
 type User struct {
     Id string `json:"id"`
     Name string `json:"name"`
-    Ctx *echo.Context
+    Ctx *echo.Context `json:"-"`
 }
 func (self *User) Send(value string) error {
     ctx := *self.Ctx
