@@ -4,7 +4,7 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>Guest {{ .room_name }}</title>
-        <link href="/css/main.css" rel="stylesheet">
+        <link href="/public/css/main.css" rel="stylesheet">
     </head>
     <body>
         {{if .user_error }}
@@ -16,5 +16,9 @@
             <input type="password" name="password" placeholder="password" value="">
             <button type="submit">submit</button>
         </form>
+        <script>
+            window.room_name = "{{ .room_name }}";
+        </script>
+        <script src="/public/scripts/sse.js"></script>
     </body>
 </html>

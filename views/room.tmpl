@@ -4,10 +4,18 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>Sync {{ .room.Name }}</title>
-        <link href="/css/main.css" rel="stylesheet">
+        <link href="/public/css/main.css" rel="stylesheet">
     </head>
     <body>
         <h1>Room: {{ .room.Name }}</h1>
         <a href="{{ .room.GuestLink }}">Guest link</a>
+        <input name="csrf" id="csrf" type="hidden" value="{{ .csrf }}">
+        <button id="pauseButton">Pausar</button>
+        <button id="resumeButton">Continuar</button>
     </body>
+    <script>
+        window.room_name = "{{ .room.Name }}";
+        window.user_name = "{{ .user.Name }}";
+    </script>
+    <script src="/public/scripts/sse.js"></script>
 </html>

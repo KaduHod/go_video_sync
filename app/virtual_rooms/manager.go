@@ -12,27 +12,23 @@ import (
 	"github.com/go-redis/redis/v8"
 	"github.com/google/uuid"
 )
-
-
 type VirtualRoomsManager struct {
-    Rooms []Room
-    Users []User
+    Rooms []*Room
+    Users []*User
     UsersLimit int
     RoomsLimit int
     DefaultExpirationTime time.Duration
     RedisConn *redis.Client
     Ctx context.Context
 }
-
-
 func NewVirtualRoomsManager() *VirtualRoomsManager {
     ctx := context.Background()
     redisConn, err := db.RedisConn(ctx)
     if err != nil {
         panic(err)
     }
-    var users []User
-    var rooms []Room
+    var users []*User
+    var rooms []*Room
     return &VirtualRoomsManager{
         Rooms: rooms,
         Users: users,       UsersLimit: 10,
@@ -42,7 +38,6 @@ func NewVirtualRoomsManager() *VirtualRoomsManager {
         Ctx: ctx,
     }
 }
-
 func (self *VirtualRoomsManager) Init() {
     var userAdmin User
     exists, err := self.UserExists("Admin")

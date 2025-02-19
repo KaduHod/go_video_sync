@@ -165,6 +165,7 @@ func (self *VirtualRoomController) RoomIndex(c echo.Context) error {
         return c.Redirect(303, url)
     }
     pageData["room"] = room
+    pageData["user"] = user
     return c.Render(http.StatusOK,"room.tmpl", pageData)
 }
 func (self *VirtualRoomController) GuestRoomIndex(c echo.Context) error {
