@@ -4,26 +4,97 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>Sync {{index .sess "user_name" }}</title>
-        <link href="/css/main.css" rel="stylesheet">
+        <link href="/public/css/main.css" rel="stylesheet">
     </head>
-    <body>
-        <h1>Hi, {{index .sess "user_name" }}</h1>
-        {{if .user_error }}
-        <h2>{{ .user_error }}</h2>
-        {{end}}
-        <form action="/app/room/create" method="POST">
-            <h1>Transmit</h1>
-            <input type="text" name="name" placeholder="Room name" value="">
-            <input type="hidden" name="csrf" value="{{ .csrf }}">
-            <input type="password" name="password" placeholder="Room password" value="">
-            <button type="submit">Create room</button>
-        </form>
-<!--        <form action="/app/room/join" method="POST">
-            <h1>Join</h1>
-            <input type="hidden" name="csrf" value="{{ .csrf }}">
-            <input type="text" name="name" placeholder="Room name" value="">
-            <input type="password" name="password" placeholder="Room password" value="">
-            <button type="submit">Join room</button>
-            </form>-->
+    <style>
+@keyframes fade-in-down {
+    0% {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate-fade-in-down {
+    animation: fade-in-down 1s ease-out forwards; /* 'forwards' garante que o estilo final seja mantido */
+}
+    </style>
+    <body class="bg-gray-900 text-white min-h-screen flex flex-col items-center justify-center">
+        <header class="fixed top-0 left-0 w-full bg-gray-800 shadow-md z-50">
+            <div class="max-w-screen-xl mx-auto flex justify-between items-center px-6 py-4">
+                <div class="flex items-center">
+                    <img src="/public/images/logo-simples.svg" alt="Logo" class="w-12 h-12 mr-3">
+                    <span class="text-xl font-bold text-white">Sync Video</span>
+                    <span class="ml-2 px-2 py-1 bg-purple-600 text-white text-sm font-semibold rounded-full shadow-sm">BETA</span>
+                </div>
+                <nav class="hidden md:flex space-x-6">
+                    <a href="#contato" class="text-gray-300 hover:text-white transition">Contato</a>
+                </nav>
+                <button class="md:hidden text-gray-300 hover:text-white focus:outline-none">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                    </svg>
+                </button>
+            </div>
+        </header>
+        <main class="flex w-full flex-1 flex-col items-center justify-center space-y-8">
+            <section id="welcome" class="text-center opacity-0 animate-fade-in-down">
+                <h1 class="text-4xl font-bold">Bem-vindo, {{index .sess "user_name" }}!</h1>
+                <p class="text-gray-300 mt-2">Crie uma sala e comece a compartilhar conteúdo agora mesmo.</p>
+            </section>
+            <section class="bg-gray-800 p-8 rounded-lg shadow-lg w-full max-w-md">
+                {{if .user_error }}
+                <div class="bg-purple-700 text-white p-4 rounded mb-4 text-center">
+                    <h2 class="text-lg font-semibold">{{ .user_error }}</h2>
+                </div>
+                {{end}}
+                <form action="/app/room/create" method="POST" class="space-y-6">
+                    <h2 class="text-xl font-semibold">Criar uma Sala</h2>
+                    <div>
+                        <label for="name" class="block text-sm font-medium text-gray-300">Nome da Sala</label>
+                        <input type="text" name="name" id="name" class="mt-1 block w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:ring-2 focus:ring-purple-500 focus:border-purple-500" placeholder="Digite o nome da sala" required>
+                    </div>
+                    <input type="hidden" name="csrf" value="{{ .csrf }}">
+                    <div>
+                        <label for="password" class="block text-sm font-medium text-gray-300">Senha</label>
+                        <input type="password" name="password" id="password" class="mt-1 block w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:ring-2 focus:ring-purple-500 focus:border-purple-500" placeholder="Digite uma senha">
+                    </div>
+                    <button type="submit" class="w-full bg-purple-600 text-white py-2 px-4 rounded-md hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 transition-all">Criar Sala</button>
+                </form>
+            </section>
+        </main>
+        <footer class="bg-gray-800 text-gray-300 w-full py-4 flex flex-col justify-center items-center mt-auto">
+            <div id="contato" class="text-center">
+                <h2 class="text-lg font-semibold mb-1">Entre em contato</h2>
+                <div class="flex space-x-4 justify-around">
+                    <a href="https://github.com/KaduHod" target="_blank" class="hover:text-white">
+                        <img
+                        src="/public/images/github.svg"
+                        alt="GitHub"
+                        class="w-6 h-6 inline"
+                        />
+                    </a>
+                    <a href="https://www.linkedin.com/in/carlosjrribas98/" target="_blank" class="hover:text-white">
+                        <img
+                        src="/public/images/linkedin.svg"
+                        alt="LinkedIn"
+                        class="w-6 h-6 inline"
+                        />
+                    </a>
+                    <a href="mailto:carlosjr.ribas@gmail.com" class="hover:text-white">
+                        <img
+                        src="https://cdn.simpleicons.org/gmail/ffffff"
+                        alt="Gmail"
+                        class="w-6 h-6 inline"
+                        />
+                    </a>
+                </div>
+            </div>
+        </footer>
+
     </body>
 </html>
+
