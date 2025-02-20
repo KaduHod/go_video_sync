@@ -6,11 +6,11 @@ import (
 type Room struct {
     Id string `json:"id"`
     Name string `json:"name"`
-    AdminId string `json:"admin"`
-    GuestId string `json:"guest"`
     Password string `json:"password"`
     GuestLink template.URL `json:"guest_link"`
     listener chan SSEMessage `json:"-"`
+    Guest User `json:"guest_ctx"`
+    Admin User `json:"admin_ctx"`
 }
 func (self *Room) GetListener() <-chan SSEMessage {
     return self.listener

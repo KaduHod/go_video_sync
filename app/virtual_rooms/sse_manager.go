@@ -20,7 +20,7 @@ func NewSSEManager() *SSEManager {
 }
 func (self *SSEManager) AddUserSSE(c *echo.Context, user *User) {
     user.Ctx = c
-    self.Users[user.Id] = user
+    self.Users[user.Name] = user
 }
 func (self *SSEManager) DeleteRoom(roomName string) {
     delete(self.Rooms, roomName)
@@ -50,18 +50,19 @@ func (self *SSEManager) StartRoom(room *Room) {
                 fmt.Println("Problema com o canal >> ", value)
                 return
             } else {
-                var destId string
-                if room.AdminId == value.Sender.Id {
-                    destId = room.GuestId
+                fmt.Println("SSE >> ", value)
+                var destName string
+                if room.Admin.Name == value.Sender.Name {
+                    destName = room.Guest.Name
                 } else {
-                    destId = room.AdminId
+                    destName = room.Admin.Name
                 }
-                dest := self.Users[destId]
-                admin := self.Users[room.AdminId]
+                dest := self.Users[destName]
+                admin := self.Users[room.Admin.Name]
                 if admin != nil {
                     self.Send(value, admin)
                 }
-                if dest != nil {
+                if dest != nil && dest.Id != room.Admin.Id {
                     self.Send(value, dest)
                 }
             }

@@ -5,26 +5,18 @@ import (
 	virtualrooms "kaduhod/video-sync/app/virtual_rooms"
 	"time"
 
-	"github.com/gorilla/sessions"
-	"github.com/labstack/echo-contrib/session"
 	"github.com/labstack/echo/v4"
 )
 type SSEController struct {
-   virtualRoomsManager *virtualrooms.VirtualRoomsManager
-   sseManager *virtualrooms.SSEManager
+    Controller
+    virtualRoomsManager *virtualrooms.VirtualRoomsManager
+    sseManager *virtualrooms.SSEManager
 }
 func NewSSEController(manager *virtualrooms.VirtualRoomsManager, sseManager *virtualrooms.SSEManager) *SSEController {
    return &SSEController{
       virtualRoomsManager: manager,
       sseManager: sseManager,
    }
-}
-func (self *SSEController) getSession(c echo.Context) (*sessions.Session, error) {
-    session, err := session.Get("session", c)
-    if err != nil {
-        return session, err
-    }
-    return session, nil
 }
 func (self *SSEController) StreamRoom(c echo.Context) error {
     session, err := self.getSession(c)
@@ -45,13 +37,14 @@ func (self *SSEController) StreamRoom(c echo.Context) error {
         return c.String(400, err.Error())
     }
     user.Ctx = &c
-    if room.AdminId == user.Id {
+    if room.Admin.Id == user.Id {
         listener := make(chan virtualrooms.SSEMessage)
         room.SetListener(listener)
         self.sseManager.AddRoomSSE(&room)
         go self.sseManager.StartRoom(&room)
     }
     self.sseManager.AddUserSSE(&c, &user)
+    fmt.Println("Adiciondo User: ", user.Name, " na room: ", room.Name)
     c.Response().Header().Set(echo.HeaderContentType, "text/event-stream")
     c.Response().Header().Set(echo.HeaderCacheControl, "no-cache")
     c.Response().Header().Set(echo.HeaderConnection, "keep-alive")
@@ -95,12 +88,12 @@ func (self *SSEController) CloseRoom(c echo.Context) error {
         fmt.Println(err)
         return c.String(400, err.Error())
     }
-    adminUserRedis, err := self.virtualRoomsManager.GetUserById(roomRedis.AdminId)
+    adminUserRedis, err := self.virtualRoomsManager.GetUser(roomRedis.Admin.Name)
     if err != nil {
         fmt.Println(err)
         return c.String(400, err.Error())
     }
-    guestUserRedis, err := self.virtualRoomsManager.GetUserById(roomRedis.GuestId)
+    guestUserRedis, err := self.virtualRoomsManager.GetUser(roomRedis.Guest.Name)
     if err != nil {
         fmt.Println(err)
         return c.String(400, err.Error())

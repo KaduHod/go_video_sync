@@ -71,9 +71,9 @@ func (self *VirtualRoomsManager) Init() {
         testRoom := Room {
             Id: uuid.New().String(),
             Name: "Teste",
-            AdminId: userAdmin.Id,
             Password: pass,
             GuestLink: template.URL("http://localhost:3003/join/room/Teste"),
+            Admin: userAdmin,
         }
         if err := self.AddRoom(testRoom); err != nil {
             panic(err)
@@ -129,13 +129,13 @@ func (self *VirtualRoomsManager) GuestJoinRoom(guest User, password string, room
     if err != nil {
         return err
     }
-    if roomRedis.GuestId != "" {
+    if roomRedis.Guest.Id != "" {
         return errors.New("Room is already full")
     }
     if !utils.CheckPasswordHash(password, roomRedis.Password) {
         return errors.New("Wrong password")
     }
-    roomRedis.GuestId = guest.Id
+    roomRedis.Guest = guest
     if err := self.RedisConn.Set(self.Ctx, "room:"+roomName, utils.JsonEncode(roomRedis), self.DefaultExpirationTime).Err(); err != nil {
         return err
     }
@@ -191,16 +191,6 @@ func (self *VirtualRoomsManager) GetUser(userName string) (User, error) {
     }
     userStr, err := self.RedisConn.Get(self.Ctx, "user:"+userName).Result()
     if err != nil {
-        return user, err
-    }
-    utils.JsonDecode(userStr, &user)
-    return user, nil
-}
-func (self *VirtualRoomsManager) GetUserById(userId string) (User, error) {
-    var user User
-    userStr, err := self.RedisConn.Get(self.Ctx, "user:"+userId).Result()
-    if err != nil {
-        fmt.Println(err)
         return user, err
     }
     utils.JsonDecode(userStr, &user)

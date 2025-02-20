@@ -14,6 +14,7 @@ import (
 )
 
 type VirtualRoomController struct {
+    Controller
     virtualRoomsManager *virtualrooms.VirtualRoomsManager
 }
 
@@ -33,28 +34,15 @@ func (self *VirtualRoomController) defaultErrorReturn(err error, c echo.Context)
     fmt.Println(err)
     return c.Redirect(303, "/?error=We are facing some issues, contact the admin")
 }
-func GetPageData(c echo.Context) map[string]interface{} {
-    pageData := make(map[string]interface{})
-    pageData["csrf"] = c.Get("csrf").(string)
-    session, err := session.Get("session", c)
-    if err != nil {
-        return pageData
-    }
-    if c.QueryParam("error") != "" {
-        pageData["user_error"] = c.QueryParam("error")
-    }
-    pageData["sess"] = session.Values
-    return pageData
-}
 func (self *VirtualRoomController) Index(c echo.Context) error {
-    pageData := GetPageData(c)
+    pageData := self.getPageData(c)
     if c.QueryParam("error") != "" {
         pageData["user_error"] = c.QueryParam("error")
     }
     return c.Render(200, "main.tmpl", pageData)
 }
 func (self *VirtualRoomController) IndexUsers(c echo.Context) error {
-    pageData := GetPageData(c)
+    pageData := self.getPageData(c)
     error := c.QueryParam("error")
     if error != "" {
         pageData["user_error"] = error
@@ -101,7 +89,7 @@ func (self *VirtualRoomController) NewUser(c echo.Context) error {
     return c.Redirect(303, "/app/user")
 }
 func (self *VirtualRoomController) NewRoom(c echo.Context) error {
-    pageData := GetPageData(c)
+    pageData := self.getPageData(c)
     if len(self.virtualRoomsManager.Rooms) > self.virtualRoomsManager.RoomsLimit {
         pageData["user_error"] = "Too many rooms"
         return c.Render(400, "main.tmpl", pageData)
@@ -135,9 +123,9 @@ func (self *VirtualRoomController) NewRoom(c echo.Context) error {
     room := virtualrooms.Room {
         Id: uuid.New().String(),
         Name: name,
-        AdminId: user.Id,
         Password: senhaHash,
         GuestLink: template.URL(c.Request().Host+"/join/room/" + name),
+        Admin: user,
     }
     if err := self.virtualRoomsManager.AddRoom(room); err != nil {
         return self.defaultErrorReturn(err, c)
@@ -146,7 +134,7 @@ func (self *VirtualRoomController) NewRoom(c echo.Context) error {
     return c.Redirect(http.StatusSeeOther, roomUrl)
 }
 func (self *VirtualRoomController) RoomIndex(c echo.Context) error {
-    pageData := GetPageData(c)
+    pageData := self.getPageData(c)
     session, err := self.getSession(c)
     if err != nil {
         self.defaultErrorReturn(err, c)
@@ -160,17 +148,22 @@ func (self *VirtualRoomController) RoomIndex(c echo.Context) error {
         url := fmt.Sprintf("/app/user?error=%s", err.Error())
         return c.Redirect(303, url)
     }
-    if room.AdminId != user.Id && room.GuestId != user.Id {
+        if room.Admin.Id != user.Id && room.Guest.Id != user.Id {
         url := fmt.Sprintf("/app/user?error=Not allowed in the room")
         return c.Redirect(303, url)
     }
     pageData["room"] = room
     pageData["user"] = user
-    pageData["user_type"] = "Admin"
+    currUserId := session.Values["user_id"]
+    if currUserId == room.Admin.Id {
+        pageData["user_type"] = "Admin"
+    } else {
+        pageData["user_type"] = "Guest"
+    }
     return c.Render(http.StatusOK,"room.tmpl", pageData)
 }
 func (self *VirtualRoomController) GuestRoomIndex(c echo.Context) error {
-    pageData := GetPageData(c)
+    pageData := self.getPageData(c)
     pageData["room_name"] = c.Param("roomName")
     pageData["user_type"] = "Guest"
     return c.Render(200, "guest.tmpl", pageData)

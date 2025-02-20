@@ -37,9 +37,6 @@ eventSource.onerror = function(error) {
     console.error("Erro na conexão SSE:", error);
 };
 async function closeRoomApi() {
-    const formData = new URLSearchParams();
-    formData.append('csrf', csrf);
-
     try {
         const req = await fetch(`/app/room/close/${roomName}`, {
             method: 'DELETE',
@@ -47,7 +44,6 @@ async function closeRoomApi() {
                 'Content-Type': 'application/x-www-form-urlencoded',
                 'X-CSRF-Token': csrf,
             },
-            body: formData.toString(),
         })
         if (req.status != 200) {
             throw "Erro de requisicao"

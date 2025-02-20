@@ -8,6 +8,7 @@ import (
 	app_middleware "kaduhod/video-sync/app/middlewares"
 	virtualrooms "kaduhod/video-sync/app/virtual_rooms"
 	"net/http"
+	"time"
 
 	"github.com/gorilla/sessions"
 	"github.com/labstack/echo-contrib/session"
@@ -48,17 +49,16 @@ func customHTTPErrorHandler(err error, c echo.Context) {
 }
 func main() {
     e := echo.New()
-
-    e.Use(middleware.LoggerWithConfig(middleware.LoggerConfig{
-        Format: "method=${method}, uri=${uri}, status=${status}\n",
-    }))
     //e.HTTPErrorHandler = customHTTPErrorHandler
     t := &Template{
         templates: template.Must(template.ParseGlob("./views/*.tmpl")),
     }
-    e.Use(middleware.CSRFWithConfig(middleware.CSRFConfig{
-        TokenLookup: "header:X-CSRF-Token,form:csrf",
-    }))
+	currentTime := func() string {
+		return time.Now().Format("02/01/2006 15:04:05.000") // Dia/mês/ano Hora:minuto:segundo.milissegundos
+	}
+	e.Use(middleware.LoggerWithConfig(middleware.LoggerConfig{
+        Format: fmt.Sprintf("[%s] path: ${uri} ${method} | status: ${status} | lat: ${latency}\n", currentTime()),
+	}))
     var store = sessions.NewCookieStore([]byte("Chave aleatória"))
     e.Use(session.MiddlewareWithConfig(session.Config{
         Store: store,
