@@ -30,11 +30,11 @@ async function sendRoomAction(action) {
 }
 const eventSource = new EventSource('/sse/room/' + roomName);
 eventSource.onmessage = function(event) {
-    console.log("Mensagem recebida:", event.data);
-};
-
-eventSource.onerror = function(error) {
-    console.error("Erro na conexão SSE:", error);
+    const msg = JSON.parse(event.data)
+    console.log("Mensagem recebida >> ", {msg})
+    if (msg.value == "close") {
+        redirecionarUsuario("O stream da sala foi fechado pelo admin.");
+    }
 };
 async function closeRoomApi() {
     try {
@@ -54,4 +54,25 @@ async function closeRoomApi() {
         console.log(error)
     }
 }
-closeRoom.addEventListener("click", () => closeRoomApi())
+if (closeRoom)
+    closeRoom.addEventListener("click", () => closeRoomApi())
+
+eventSource.onerror = function (error) {
+    console.log("Erro na conexão SSE:", error);
+    redirecionarUsuario("Erro ao acessar sala!");
+};
+
+// Verificar periodicamente se a conexão foi fechada
+const verificarConexao = setInterval(() => {
+    if (eventSource.readyState === EventSource.CLOSED) {
+        console.warn("Conexão SSE fechada.");
+        redirecionarUsuario("Erro inexperado!");
+    }
+}, 3000); // Verifica a cada 3 segundos
+
+function redirecionarUsuario(msg = "") {
+    clearInterval(verificarConexao); // Para a verificação periódica
+    eventSource.close(); // Garante que a conexão está fechada
+    msg = msg != "" ? "?error=" + msg : "" ;
+    window.location.href = `/app/user${msg}`;
+}

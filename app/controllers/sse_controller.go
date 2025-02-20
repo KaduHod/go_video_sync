@@ -120,6 +120,8 @@ func (self *SSEController) CloseRoom(c echo.Context) error {
        fmt.Println("Guest not found")
        return c.String(400, "User not found")
     }
+    guest.NotifyCloseRoom()
+    admin.NotifyCloseRoom()
     if err := guest.CloseSSE(); err != nil {
         fmt.Println(err)
         return c.String(400, err.Error())

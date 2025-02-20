@@ -60,7 +60,6 @@ func (self *SSEManager) StartRoom(room *Room) {
                     fmt.Println("Enviou para o admin")
                     self.Send(value, admin)
                 }
-
             }
         }
     }

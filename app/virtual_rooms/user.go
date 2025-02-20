@@ -1,6 +1,9 @@
 package virtualrooms
 
 import (
+	"fmt"
+	"kaduhod/video-sync/app/utils"
+
 	"github.com/labstack/echo/v4"
 )
 type VideoUpdate struct {
@@ -16,4 +19,21 @@ type User struct {
 func (self *User) CloseSSE() error {
     ctx := *self.Ctx
     return ctx.String(200, "Closed")
+}
+func (self *User) NotifyCloseRoom() {
+    event := SSEMessage{
+        Value: "close",
+    }
+    string, err := utils.JsonStringify(event)
+    if err != nil {
+        fmt.Println(err.Error())
+        return
+    }
+    ctx := *self.Ctx
+    _, err = fmt.Fprintf(ctx.Response(), "data: %s\n\n", string)
+    if err != nil {
+        fmt.Println(err.Error())
+        return
+    }
+    ctx.Response().Flush()
 }
