@@ -50,21 +50,10 @@ func (self *SSEManager) StartRoom(room *Room) {
                 fmt.Println("Problema com o canal >> ", value)
                 return
             } else {
-                fmt.Println("SSE >> ", value)
-                var destName string
-                if room.Admin.Name == value.Sender.Name {
-                    destName = room.Guest.Name
-                } else {
-                    destName = room.Admin.Name
-                }
-                dest := self.Users[destName]
-                admin := self.Users[room.Admin.Name]
-                if admin != nil {
-                    self.Send(value, admin)
-                }
-                if dest != nil && dest.Id != room.Admin.Id {
-                    self.Send(value, dest)
-                }
+                guest := self.Users[room.Admin.Name]
+                admin := self.Users[room.Guest.Name]
+                self.Send(value, guest)
+                self.Send(value, admin)
             }
         }
     }
