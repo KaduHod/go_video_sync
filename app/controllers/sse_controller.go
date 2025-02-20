@@ -42,6 +42,13 @@ func (self *SSEController) StreamRoom(c echo.Context) error {
         room.SetListener(listener)
         self.sseManager.AddRoomSSE(&room)
         go self.sseManager.StartRoom(&room)
+    } else {
+        existentRoom := self.sseManager.Rooms[roomName]
+        if existentRoom == nil {
+            fmt.Println("Room not found")
+            return c.String(400, "Room not found")
+        }
+        existentRoom.SetGuest(user)
     }
     self.sseManager.AddUserSSE(&c, &user)
     fmt.Println("Adiciondo User: ", user.Name, " na room: ", room.Name)

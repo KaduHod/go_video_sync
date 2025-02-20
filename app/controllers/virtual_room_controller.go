@@ -9,7 +9,6 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/gorilla/sessions"
-	"github.com/labstack/echo-contrib/session"
 	"github.com/labstack/echo/v4"
 )
 
@@ -22,13 +21,6 @@ func NewVirtualRoomController(manager *virtualrooms.VirtualRoomsManager) *Virtua
     return &VirtualRoomController{
         virtualRoomsManager: manager,
     }
-}
-func (self *VirtualRoomController) getSession(c echo.Context) (*sessions.Session, error) {
-    session, err := session.Get("session", c)
-    if err != nil {
-        return session, err
-    }
-    return session, nil
 }
 func (self *VirtualRoomController) defaultErrorReturn(err error, c echo.Context) error {
     fmt.Println(err)

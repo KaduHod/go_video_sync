@@ -24,3 +24,6 @@ func (self *Room) SetListener(listener chan SSEMessage) {
 func (self *Room) Close() {
     close(self.listener)
 }
+func (self *Room) SetGuest(guest User) {
+    self.Guest = guest
+}

@@ -50,10 +50,17 @@ func (self *SSEManager) StartRoom(room *Room) {
                 fmt.Println("Problema com o canal >> ", value)
                 return
             } else {
-                guest := self.Users[room.Admin.Name]
-                admin := self.Users[room.Guest.Name]
-                self.Send(value, guest)
-                self.Send(value, admin)
+                guest := self.Users[room.Guest.Name]
+                if guest != nil {
+                    fmt.Println("Enviou para o guest")
+                    self.Send(value, guest)
+                }
+                admin := self.Users[room.Admin.Name]
+                if admin != nil {
+                    fmt.Println("Enviou para o admin")
+                    self.Send(value, admin)
+                }
+
             }
         }
     }
