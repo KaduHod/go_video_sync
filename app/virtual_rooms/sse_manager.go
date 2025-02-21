@@ -52,12 +52,12 @@ func (self *SSEManager) StartRoom(room *Room) {
             } else {
                 guest := self.Users[room.Guest.Name]
                 if guest != nil {
-                    fmt.Println("Enviou para o guest")
+                    //fmt.Println("Enviou para o guest")
                     self.Send(value, guest)
                 }
                 admin := self.Users[room.Admin.Name]
                 if admin != nil {
-                    fmt.Println("Enviou para o admin")
+                    //fmt.Println("Enviou para o admin")
                     self.Send(value, admin)
                 }
             }
@@ -74,4 +74,5 @@ type SSEMessage struct {
     RoomName string `json:"room_name"`
     Sender User `json:"sender"`
     Timestamp time.Time `json:"timestamp"`
+    Meta interface{} `json:"meta"`
 }

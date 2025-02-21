@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"fmt"
+	"kaduhod/video-sync/app/utils"
 	virtualrooms "kaduhod/video-sync/app/virtual_rooms"
 	"time"
 
@@ -30,7 +31,7 @@ func (self *SSEController) StreamRoom(c echo.Context) error {
         fmt.Println(err)
         return c.String(400, err.Error())
     }
-    roomName := c.Param("roomName")
+    roomName := self.getParam("roomName", c)
     room, err := self.virtualRoomsManager.GetRoom(roomName)
     if err != nil {
         fmt.Println(err)
@@ -55,6 +56,7 @@ func (self *SSEController) StreamRoom(c echo.Context) error {
     c.Response().Header().Set(echo.HeaderContentType, "text/event-stream")
     c.Response().Header().Set(echo.HeaderCacheControl, "no-cache")
     c.Response().Header().Set(echo.HeaderConnection, "keep-alive")
+    user.Pong()
     <-c.Request().Context().Done()
     return nil
 }
@@ -66,7 +68,7 @@ func (self *SSEController) Post(c echo.Context) error {
         fmt.Println(err)
         return c.String(400, err.Error())
     }
-    roomName := c.Param("roomName")
+    roomName := self.getParam("roomName", c)
     // roomDest
     room, ok := self.sseManager.Rooms[roomName]
     if room == nil {
@@ -81,16 +83,26 @@ func (self *SSEController) Post(c echo.Context) error {
         fmt.Println("Channel[listener] not initialized")
         return c.String(400, "Channel not initialized")
     }
+    var metaInterface interface{}
+    meta := c.FormValue("meta")
     msg := virtualrooms.SSEMessage{}
+    if meta != "" {
+        if err := utils.JasonParse[interface{}](meta, &metaInterface); err != nil {
+            fmt.Println(err.Error())
+            return c.String(400, err.Error())
+        }
+        msg.Meta = metaInterface
+    }
     msg.RoomName = roomName
     msg.Value = c.FormValue("action")
     msg.Sender = user
     msg.Timestamp = time.Now()
+
     room.GetListenerWriter() <- msg
     return c.String(200, "OK")
 }
 func (self *SSEController) CloseRoom(c echo.Context) error {
-    roomRedis, err := self.virtualRoomsManager.GetRoom(c.Param("roomName"))
+    roomRedis, err := self.virtualRoomsManager.GetRoom(self.getParam("roomName", c))
     if err != nil {
         fmt.Println(err)
         return c.String(400, err.Error())

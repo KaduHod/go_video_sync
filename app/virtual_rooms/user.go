@@ -37,3 +37,20 @@ func (self *User) NotifyCloseRoom() {
     }
     ctx.Response().Flush()
 }
+func (self *User) Pong() {
+    event := SSEMessage{
+        Value: "server::ping",
+    }
+    string, err := utils.JsonStringify(event)
+    if err != nil {
+        fmt.Println(err.Error())
+        return
+    }
+    ctx := *self.Ctx
+    _, err = fmt.Fprintf(ctx.Response(), "data: %s\n\n", string)
+    if err != nil {
+        fmt.Println(err.Error())
+        return
+    }
+    ctx.Response().Flush()
+}

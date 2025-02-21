@@ -6,31 +6,117 @@
         <title>Sync {{ .room.Name }}</title>
         <link href="/public/css/main.css" rel="stylesheet">
     </head>
-    <body>
-        {{ if eq .user_type "Admin" }}
-        <h1>Bem-vindo, Admin da sala: {{ .room.Name }}</h1>
-        <a id="guestLink" href="{{ .room.GuestLink }}">Guest link</a>
-        <button onclick="copyToClipboard()">Copiar Guest Link</button>
-        {{ else }}
-        <h1>Room: {{ .room.Name }}</h1>
-        {{ end }}
+    <body class="bg-gray-900 text-white min-h-screen flex flex-col items-center justify-center">
+        <header class="fixed top-0 left-0 w-full bg-gray-800 shadow-md z-50">
+            <div class="max-w-screen-xl mx-auto flex justify-between items-center px-6 py-4">
+                <div class="flex items-center">
+                    <img src="/public/images/logo-simples.svg" alt="Logo" class="w-12 h-12 mr-3">
+                    <span class="text-xl font-bold text-white">Sync Video</span>
+                    <span class="ml-2 px-2 py-1 bg-purple-600 text-white text-sm font-semibold rounded-full shadow-sm">BETA</span>
+                </div>
+                <nav class="hidden md:flex space-x-6">
+                    <a href="#contato" class="text-gray-300 hover:text-white transition">Contato</a>
+                </nav>
+                <button class="md:hidden text-gray-300 hover:text-white focus:outline-none">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                    </svg>
+                </button>
+            </div>
+        </header>
+
+
+
+        <main class="flex w-full flex-1 items-center justify-center">
+
+            <div class="bg-gray-800 p-8 rounded-lg shadow-lg flex flex-col w-full max-w-md space-y-6">
+                {{ if eq .user_type "Admin" }}
+                <h1 class="text-3xl font-semibold text-center text-purple-300">Bem-vindo, Admin da sala: {{ .room.Name }}</h1>
+                <div class="space-y-4">
+                    <a id="guestLink" href="{{ .room.GuestLink }}" class="text-sm text-purple-400 hover:underline">Guest link</a>
+                    <button onclick="copyToClipboard()" class="w-full bg-purple-600 text-white py-2 px-4 rounded-md hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 transition">Copiar Guest Link</button>
+                </div>
+                <button id="pauseButton" class="w-full bg-yellow-600 text-white py-2 px-4 rounded-md hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-yellow-500 transition">Pausar</button>
+                <button id="resumeButton" class="w-full bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 transition">Continuar</button>
+                <button id="close-room" class="w-full bg-red-600 text-white py-2 px-4 rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 transition">Fechar sala</button>
+                {{ else }}
+                <h1 class="text-3xl font-semibold text-center text-purple-300">Room: {{ .room.Name }}</h1>
+                <div class="space-y-4">
+                    <button id="pauseButton" class="w-full bg-yellow-600 text-white py-2 px-4 rounded-md hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-yellow-500 transition">Pausar</button>
+                    <button id="resumeButton" class="w-full bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 transition">Continuar</button>
+                </div>
+                {{ end }}
+                {{ if eq .user_type "Admin"}}
+                <div class="space-y-4 hidden" id="add-video">
+                    <div class="flex items-center space-x-4">
+                        <input type="text" id="videoUrl" placeholder="Insira a URL do vídeo" class="w-full px-4 py-2 bg-gray-700 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 transition" />
+                        <button id="loadVideoButton" class="w-32 bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition">Carregar Vídeo</button>
+                    </div>
+                </div>
+                {{end}}
+            </div>
+            <div id="Player">
+                <div id="ytplayer">
+
+                </div>
+            </div>
+        </main>
+
         <input name="csrf" id="csrf" type="hidden" value="{{ .csrf }}">
-        <button id="pauseButton">Pausar</button>
-        <button id="resumeButton">Continuar</button>
-        {{ if eq .user_type "Admin" }}
-        <button id="close-room">Parar</button>
-        {{end}}
+
+        <footer class="bg-gray-800 text-gray-300 w-full py-4 flex flex-col justify-center items-center mt-auto">
+            <div id="contato" class="text-center">
+                <h2 class="text-lg font-semibold mb-1">Entre em contato</h2>
+                <div class="flex space-x-4 justify-around">
+                    <a href="https://github.com/KaduHod" target="_blank" class="hover:text-white">
+                        <img
+                        src="/public/images/github.svg"
+                        alt="GitHub"
+                        class="w-6 h-6 inline"
+                        />
+                    </a>
+                    <a href="https://www.linkedin.com/in/carlosjrribas98/" target="_blank" class="hover:text-white">
+                        <img
+                        src="/public/images/linkedin.svg"
+                        alt="LinkedIn"
+                        class="w-6 h-6 inline"
+                        />
+                    </a>
+                    <a href="mailto:carlosjr.ribas@gmail.com" class="hover:text-white">
+                        <img
+                        src="https://cdn.simpleicons.org/gmail/ffffff"
+                        alt="Gmail"
+                        class="w-6 h-6 inline"
+                        />
+                    </a>
+                </div>
+            </div>
+        </footer>
+
+        <script>
+            function copyToClipboard() {
+                const link = document.getElementById("guestLink").href;
+                navigator.clipboard.writeText(link).then(() => {
+                }).catch(err => {
+                    console.error("Erro ao copiar:", err);
+                });
+            }
+            window.room_name = "{{ .room.Name }}";
+            window.user_name = "{{ .user.Name }}";
+            window.user_type = "{{ .user_type }}";
+            function User(userType) {
+                const type = userType
+                const player = "waiting"
+                const sse = "waiting"
+                const room = window.room_name
+                const name = window.user_name
+                return {type, player, sse, room, name}
+            }
+            window.user = new User(window.user_type.toLowerCase() == "admin" ? "admin" : "guest")
+            window.friend = new User(window.user_type.toLowerCase() == "admin" ? "guest" : "admin")
+        </script>
+        <script src="/public/scripts/youtube.js"></script>
+        <script src="/public/scripts/sse.js"></script>
     </body>
-    <script>
-        window.room_name = "{{ .room.Name }}";
-        window.user_name = "{{ .user.Name }}";
-        function copyToClipboard() {
-            const link = document.getElementById("guestLink").href;
-            navigator.clipboard.writeText(link).then(() => {
-            }).catch(err => {
-                console.error("Erro ao copiar:", err);
-            });
-        }
-    </script>
-    <script src="/public/scripts/sse.js"></script>
 </html>
+

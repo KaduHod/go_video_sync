@@ -6,19 +6,76 @@
         <title>Guest {{ .room_name }}</title>
         <link href="/public/css/main.css" rel="stylesheet">
     </head>
-    <body>
-        {{if .user_error }}
-        <h1>{{ .user_error }}</h1>
-        {{end}}
-        <form action="/join/room/{{ .room_name }}" method="POST">
-            <input type="text" name="username" placeholder="username" value="">
-            <input type="hidden" name="csrf" value="{{ .csrf }}">
-            <input type="password" name="password" placeholder="password" value="">
-            <button type="submit">submit</button>
-        </form>
+    <body class="bg-gray-900 text-white min-h-screen flex flex-col items-center justify-center">
+        <header class="fixed top-0 left-0 w-full bg-gray-800 shadow-md z-50">
+            <div class="max-w-screen-xl mx-auto flex justify-between items-center px-6 py-4">
+                <div class="flex items-center">
+                    <img src="/public/images/logo-simples.svg" alt="Logo" class="w-12 h-12 mr-3">
+                    <span class="text-xl font-bold text-white">Sync Video</span>
+                    <span class="ml-2 px-2 py-1 bg-purple-600 text-white text-sm font-semibold rounded-full shadow-sm">BETA</span>
+                </div>
+                <nav class="hidden md:flex space-x-6">
+                    <a href="#contato" class="text-gray-300 hover:text-white transition">Contato</a>
+                </nav>
+                <button class="md:hidden text-gray-300 hover:text-white focus:outline-none">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                    </svg>
+                </button>
+            </div>
+        </header>
+
+
+        <main class="flex w-full flex-1 items-center justify-center">
+            <div class="bg-gray-800 p-8 rounded-lg shadow-lg flex flex-col w-full max-w-md space-y-6">
+                {{if .user_error }}
+                <div class="bg-red-500 text-white p-4 rounded mb-4 text-center">
+                    <h2 class="text-lg font-semibold">{{ .user_error }}</h2>
+                </div>
+                {{end}}
+                <h1 class="text-3xl font-semibold text-center text-purple-300">Join Room: {{ .room_name }}</h1>
+                <form action="/join/room/{{ .room_name }}" method="POST" class="space-y-4">
+                    <input type="text" name="username" placeholder="Username" class="w-full bg-gray-700 text-white border border-gray-600 p-3 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500" required>
+                    <input type="hidden" name="csrf" value="{{ .csrf }}">
+                    <input type="password" name="password" placeholder="Password" class="w-full bg-gray-700 text-white border border-gray-600 p-3 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500" required>
+                    <button type="submit" class="w-full bg-purple-600 text-white py-2 px-4 rounded-md hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 transition">Submit</button>
+                </form>
+            </div>
+        </main>
+
+        <footer class="bg-gray-800 text-gray-300 w-full py-4 flex flex-col justify-center items-center mt-auto">
+            <div id="contato" class="text-center">
+                <h2 class="text-lg font-semibold mb-1">Entre em contato</h2>
+                <div class="flex space-x-4 justify-around">
+                    <a href="https://github.com/KaduHod" target="_blank" class="hover:text-white">
+                        <img
+                        src="/public/images/github.svg"
+                        alt="GitHub"
+                        class="w-6 h-6 inline"
+                        />
+                    </a>
+                    <a href="https://www.linkedin.com/in/carlosjrribas98/" target="_blank" class="hover:text-white">
+                        <img
+                        src="/public/images/linkedin.svg"
+                        alt="LinkedIn"
+                        class="w-6 h-6 inline"
+                        />
+                    </a>
+                    <a href="mailto:carlosjr.ribas@gmail.com" class="hover:text-white">
+                        <img
+                        src="https://cdn.simpleicons.org/gmail/ffffff"
+                        alt="Gmail"
+                        class="w-6 h-6 inline"
+                        />
+                    </a>
+                </div>
+            </div>
+        </footer>
         <script>
             window.room_name = "{{ .room_name }}";
         </script>
         <script src="/public/scripts/sse.js"></script>
+        <script src="/public/scripts/header.js"></script>
     </body>
 </html>
+

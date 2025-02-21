@@ -135,7 +135,7 @@ func (self *VirtualRoomController) RoomIndex(c echo.Context) error {
     if err != nil {
         return c.Redirect(http.StatusSeeOther, "/app/user")
     }
-    room, err := self.virtualRoomsManager.GetRoom(c.Param("roomName"))
+    room, err := self.virtualRoomsManager.GetRoom(self.getParam("roomName", c))
     if err != nil {
         url := fmt.Sprintf("/app/user?error=%s", err.Error())
         return c.Redirect(303, url)
@@ -156,7 +156,7 @@ func (self *VirtualRoomController) RoomIndex(c echo.Context) error {
 }
 func (self *VirtualRoomController) GuestRoomIndex(c echo.Context) error {
     pageData := self.getPageData(c)
-    pageData["room_name"] = c.Param("roomName")
+    pageData["room_name"] = self.getParam("roomName", c)
     pageData["user_type"] = "Guest"
     return c.Render(200, "guest.tmpl", pageData)
 }
@@ -167,7 +167,7 @@ func (self *VirtualRoomController) GuestRoomJoin(c echo.Context) error {
         return self.defaultErrorReturn(err, c)
     }
     if userExists {
-        return c.Redirect(303, "/join/room/"+c.Param("roomName")+"?error=User already exists")
+        return c.Redirect(303, "/join/room/"+self.getParam("roomName", c)+"?error=User already exists")
     }
     user := virtualrooms.User {
         Id: uuid.New().String(),
@@ -176,22 +176,22 @@ func (self *VirtualRoomController) GuestRoomJoin(c echo.Context) error {
     if err := self.virtualRoomsManager.AddUser(user); err != nil {
         return self.defaultErrorReturn(err, c)
     }
-    if err := self.virtualRoomsManager.GuestJoinRoom(user, c.FormValue("password"), c.Param("roomName")); err != nil {
+    if err := self.virtualRoomsManager.GuestJoinRoom(user, c.FormValue("password"), self.getParam("roomName", c)); err != nil {
         fmt.Println(err)
         self.virtualRoomsManager.DeleteKey("user:"+user.Name)
-        return c.Redirect(303, "/join/room/"+c.Param("roomName")+"/?error="+err.Error())
+        return c.Redirect(303, "/join/room/"+self.getParam("roomName", c)+"/?error="+err.Error())
     }
     session, err := self.getSession(c)
     session.Values["user_id"] = user.Id
     session.Values["user_name"] = user.Name
     if err != nil {
         fmt.Println(err)
-        return c.Redirect(303, "/join/room/"+c.Param("roomName")+"/?error=" + err.Error())
+        return c.Redirect(303, "/join/room/"+self.getParam("roomName", c)+"/?error=" + err.Error())
     }
     //salvar sessao
     if err := session.Save(c.Request(), c.Response()); err != nil {
         fmt.Println(err)
-        return c.Redirect(303, "/join/room/"+c.Param("roomName")+"/?error=" + err.Error())
+        return c.Redirect(303, "/join/room/"+self.getParam("roomName", c)+"/?error=" + err.Error())
     }
-    return c.Redirect(303, "/app/room/"+c.Param("roomName"))
+    return c.Redirect(303, "/app/room/"+self.getParam("roomName", c))
 }

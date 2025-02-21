@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"fmt"
+	"net/url"
 
 	"github.com/gorilla/sessions"
 	"github.com/labstack/echo-contrib/session"
@@ -30,4 +31,21 @@ func (self *Controller) getSession(c echo.Context) (*sessions.Session, error) {
         return session, err
     }
     return session, nil
+}
+func (self Controller) getParam(paramName string, c echo.Context) string {
+    url := c.Param(paramName)
+    if url == "" {
+        return url
+    }
+    return self.manipulaURL(url)
+}
+func (self Controller) manipulaURL(input string) (string) {
+	if len(input) > 1 && input[len(input)-1] == '/' {
+		input = input[:len(input)-1]
+	}
+	parsedURL, err := url.Parse(input)
+	if err != nil {
+		return ""
+	}
+	return parsedURL.Path
 }
