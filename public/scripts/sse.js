@@ -1,16 +1,27 @@
-
-const pauseButton = document.getElementById('pauseButton');
-const resumeButton = document.getElementById('resumeButton');
 const roomName = window.room_name;
 const userName = window.user_name;
 const closeRoom = document.getElementById('close-room');
 const csrf = document.getElementById('csrf').value;
-pauseButton.addEventListener("click", () => {
-    sendRoomAction("player::pause")
+const playPauseButton = document.getElementById('pausePlayButton')
+let play = true;//"paused"
+playPauseButton.addEventListener("click",({target}) => {
+    play = !play
+    if(play)
+        sendRoomAction("player::pause")
+    else
+        sendRoomAction("player::resume")
 })
-resumeButton.addEventListener("click", () => {
-    sendRoomAction('player::resume')
-})
+const playPauseAnimation = play => {
+    const bar1 = document.getElementById('play');
+    const bar2 = document.getElementById('pause');
+    if (play == "play") {
+        bar1.classList.remove("hidden")
+        bar2.classList.add("hidden")
+    } else {
+        bar1.classList.add("hidden");
+        bar2.classList.remove("hidden");
+    }
+}
 async function sendRoomAction(action, meta) {
     const formData = new URLSearchParams();
     formData.append('action', action);
@@ -55,9 +66,10 @@ const deployInputToAddVideo = () => {
         addVideo.classList.remove("hidden")
     }
 }
-if(addVideo) {
+if(window.user.type == "admin") {
     const addVideoButton = document.getElementById('loadVideoButton')
-    addVideoButton.addEventListener("click", () => {
+    addVideoButton.addEventListener("click", (e) => {
+        console.log({e})
         const videoUrl = document.getElementById('videoUrl').value
         if(!window.isValidYouTubeUrl(videoUrl)) {
             console.log("Url inválida")
@@ -78,11 +90,9 @@ const handleRoomEvents = (data) => {
     const {value} = data
     switch (value) {
         case "update::ping":
-            if (isGuest(data)) {
+            if (isGuest(data) && bothUsersReady()) {
                 window.friend = data.meta
-                if(bothUsersReady()) {
-                    deployInputToAddVideo()
-                }
+                deployInputToAddVideo()
             }
             break;
         case "server::ping":
@@ -99,27 +109,61 @@ const handleRoomEvents = (data) => {
             break;
     }
 }
+const setUpCounter = () => {
+    const counter = document.getElementById('counter-video')
+    if (!window.player || !window.player.getDuration) return false
+    let duration = window.player.getDuration();
+    let tempoTotal = window.formatarTempo(duration);
+    console.log({tempoTotal, duration})
+    const incrementaCounter = () => {
+        window.player_manager.time++
+        if(tempoTotal == "00:00") {
+            tempoTotal = window.formatarTempo(window.player.getDuration())
+        }
+        console.log(window.player_manager.time, tempoTotal)
+        counter.innerText = window.formatarTempo(window.player_manager.time) + " / " + tempoTotal
+    }
+    return setInterval(incrementaCounter, 1000);
+}
+playPauseAnimation("pause")
+window.setUpCounter = setUpCounter
 const handlePlayerEvents = (data) => {
-    const {value} = data
-    console.log(`Evento Player :: ${value} `, data)
+    const { value } = data;
+    console.log(`Evento Player :: ${value} `, data);
     switch (value) {
         case "player::pause":
             window.player.pauseVideo();
-            //console.log(window.player)
+            playPauseAnimation("pause");
+            if (window.player_manager) {
+                window.player_manager.state = "paused";
+                clearInterval(window.player_manager.interval);
+                window.player_manager.state = "waiting";
+            }
             break;
         case "player::resume":
             window.player.playVideo();
-            //console.log(window.player)
+            playPauseAnimation("play");
+            if (window.player_manager) {
+                if (window.player_manager.state === "waiting") {
+                    window.player_manager.interval = setUpCounter();
+                }
+                window.player_manager.state = "playing";
+            }
             break;
         case "player::change-video":
-            window.player.loadVideoById(window.getYouTubeVideoId(data.meta.url), 0);  // Altera o vídeo para o novo ID
-            window.player.pauseVideo()
+            window.player.loadVideoById(window.getYouTubeVideoId(data.meta.url), 0); // Altera o vídeo para o novo ID
+            window.player.pauseVideo();
+            if (window.player_manager) {
+                window.player_manager.videoUrl = data.meta.url;
+
+                window.player_manager.state = "waiting";
+            }
             break;
         default:
-            console.log(value, "Não reconhecido")
+            console.log(value, "Não reconhecido");
             break;
     }
-}
+};
 async function closeRoomApi() {
     try {
         const req = await fetch(`/app/room/close/${roomName}`, {

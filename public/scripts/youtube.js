@@ -86,7 +86,6 @@ function changeVideo(url) {
 window.changeVideo = changeVideo
 function onPlayerStateChange(event) {
     if (event.data == YT.PlayerState.PLAYING && !window.player_done) {
-        setTimeout(window.player.stopVideo(), 6000);
         window.player_done = true;
     }
     const state = event.data
@@ -101,4 +100,17 @@ function onPlayerStateChange(event) {
         default:
             break;
     }
+}
+window.formatarTempo = (segundos) => {
+    // Calcula os minutos e segundos
+    segundos = Math.round(segundos);
+    const minutos = Math.floor(segundos / 60); // Arredonda para baixo
+    const segundosRestantes = segundos % 60; // Obtém os segundos restantes
+
+    // Formata os minutos e segundos para sempre ter dois dígitos
+    const minutosFormatados = String(minutos).padStart(2, '0');
+    const segundosFormatados = String(segundosRestantes).padStart(2, '0');
+
+    // Retorna no formato "mm:ss"
+    return `${minutosFormatados}:${segundosFormatados}`;
 }

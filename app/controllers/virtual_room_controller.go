@@ -42,7 +42,7 @@ func (self VirtualRoomController) VerificarSeSalaParouDeTransmitir(text string) 
 }
 func (self *VirtualRoomController) defaultErrorReturn(err error, c echo.Context) error {
     fmt.Println(err)
-    return c.Redirect(303, "/?error=We are facing some issues, contact the admin")
+    return c.Redirect(303, err.Error())//"/?error=We are facing some issues, contact the admin")
 }
 func (self *VirtualRoomController) Index(c echo.Context) error {
     pageData := self.getPageData(c)

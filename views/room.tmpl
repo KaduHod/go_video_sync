@@ -25,43 +25,51 @@
             </div>
         </header>
 
-
-
-        <main class="flex w-full flex-1 items-center justify-center">
-
-            <div class="bg-gray-800 p-8 rounded-lg shadow-lg flex flex-col w-full max-w-md space-y-6">
-                {{ if eq .user_type "Admin" }}
-                <h1 class="text-3xl font-semibold text-center text-purple-300">Bem-vindo, Admin da sala: {{ .room.Name }}</h1>
-                <div class="space-y-4">
-                    <a id="guestLink" href="{{ .room.GuestLink }}" class="text-sm text-purple-400 hover:underline">Guest link</a>
-                    <button onclick="copyToClipboard()" class="w-full bg-purple-600 text-white py-2 px-4 rounded-md hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 transition">Copiar Guest Link</button>
-                </div>
-                <button id="pauseButton" class="w-full bg-yellow-600 text-white py-2 px-4 rounded-md hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-yellow-500 transition">Pausar</button>
-                <button id="resumeButton" class="w-full bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 transition">Continuar</button>
-                <button id="close-room" class="w-full bg-red-600 text-white py-2 px-4 rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 transition">Fechar sala</button>
-                {{ else }}
-                <h1 class="text-3xl font-semibold text-center text-purple-300">Room: {{ .room.Name }}</h1>
-                <div class="space-y-4">
-                    <button id="pauseButton" class="w-full bg-yellow-600 text-white py-2 px-4 rounded-md hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-yellow-500 transition">Pausar</button>
-                    <button id="resumeButton" class="w-full bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 transition">Continuar</button>
-                </div>
-                {{ end }}
-                {{ if eq .user_type "Admin"}}
-                <div class="space-y-4 hidden" id="add-video">
-                    <div class="flex items-center space-x-4">
-                        <input type="text" id="videoUrl" placeholder="Insira a URL do vídeo" class="w-full px-4 py-2 bg-gray-700 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 transition" />
-                        <button id="loadVideoButton" class="w-32 bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition">Carregar Vídeo</button>
-                    </div>
-                </div>
-                {{end}}
+        <main class="flex w-full flex-1 mt-4 flex-col items-center justify-center space-y-6">
+            <div class="w-full max-w-md p-4 flex justify-start">
+                <h1 class="text-4xl font-bold text-center text-purple-400 mb-4">
+                    🎬 Sala: <span class="text-purple-500">{{ .room.Name }}</span>
+                </h1>
             </div>
-            <div id="Player">
-                <div id="ytplayer">
 
+            <div id="Player" class="flex flex-col items-center">
+                <!-- Container que une o player e os controles -->
+                <div class="player-container bg-gray-800 p-4 rounded-lg flex flex-col items-center space-y-4">
+                    <!-- Botões adicionais abaixo da estrutura do player -->
+                    {{ if eq .user_type "Admin" }}
+                    <div class="w-full flex justify-start space-x-4">
+                        <button id="copiar-link" class="bg-purple-600 px-2 py-2 text-white rounded-md text-sm shadow-md hover:bg-purple-700 focus:outline-none focus:ring-4 focus:ring-purple-500 transition-all">
+                            Copiar Link de Convidado
+                        </button>
+                        <button id="close-room" class="bg-red-600 text-white mx-2 px-2 py-2 rounded-md text-sm shadow-md hover:bg-red-700 focus:outline-none focus:ring-4 focus:ring-red-500 transition-all">
+                            Terminar sessão
+                        </button>
+                    </div>
+
+                    <div class="w-full flex justify-start space-x-4">
+                        <input type="text" id="videoUrl" placeholder="Insira a URL do vídeo" class="flex-1 p-2 bg-gray-700 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 transition" />
+                        <button id="loadVideoButton" class="flex-5 bg-purple-600 text-white p-2 rounded-md hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purle-500 transition">Carregar Vídeo</button>
+                    </div>
+                    {{ end }}
+
+                    <div id="ytplayer"></div>
+                    <div class="w-full flex justify-start controls space-x-4">
+                    <div class="w-full flex justify-start controls space-x-4">
+                        <button id="pausePlayButton" class="relative w-12 h-10 p-3 flex items-center justify-center bg-purple-600 text-whit rounded-md hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purle-500 transition">
+                            <img src="/public/images/play.svg" id="play" class="hidden"></img>
+                            <img src="/public/images/pause.svg" id="pause" class=""></img>
+                        </button>
+                        <div id="counter-video" class="text-center flex items-center">
+
+                        </div>
+                    </div>
+                        <div id="counter-video" class="text-center flex items-center">
+
+                        </div>
+                    </div>
                 </div>
             </div>
         </main>
-
         <input name="csrf" id="csrf" type="hidden" value="{{ .csrf }}">
 
         <footer class="bg-gray-800 text-gray-300 w-full py-4 flex flex-col justify-center items-center mt-auto">
@@ -94,11 +102,18 @@
         </footer>
 
         <script>
-            function copyToClipboard() {
-                const link = document.getElementById("guestLink").href;
-                navigator.clipboard.writeText(link).then(() => {
-                }).catch(err => {
-                    console.error("Erro ao copiar:", err);
+            const copiarLink = document.getElementById("copiar-link")
+            if(copiarLink) {
+                copiarLink.addEventListener("click", () => {
+                    navigator.clipboard.writeText("{{ .room.GuestLink }}").then(() => {
+                        const oldTitle = copiarLink.innerText;
+                        copiarLink.innerText = "Copiado!";
+                        setTimeout(() => {
+                            copiarLink.innerText = oldTitle;
+                        }, 5000)
+                    }).catch(err => {
+                        console.error("Erro ao copiar:", err);
+                    });
                 });
             }
             window.room_name = "{{ .room.Name }}";
@@ -114,7 +129,20 @@
             }
             window.user = new User(window.user_type.toLowerCase() == "admin" ? "admin" : "guest")
             window.friend = new User(window.user_type.toLowerCase() == "admin" ? "guest" : "admin")
+            function PlayerManager() {
+                const videoUrl = "";
+                const state = "waiting";
+                const time = 0;
+                const user = {};
+                const getUser = function () {
+                    this.user = window.user
+                    return this.user
+                }
+                return {videoUrl, state, time, user, getUser}
+            }
+            window.player_manager = new PlayerManager()
         </script>
+        <script src="/public/scripts/header.js"></script>
         <script src="/public/scripts/youtube.js"></script>
         <script src="/public/scripts/sse.js"></script>
     </body>
