@@ -6,6 +6,7 @@ import (
 	"kaduhod/video-sync/app/utils"
 	virtualrooms "kaduhod/video-sync/app/virtual_rooms"
 	"net/http"
+	"regexp"
 
 	"github.com/google/uuid"
 	"github.com/gorilla/sessions"
@@ -22,6 +23,23 @@ func NewVirtualRoomController(manager *virtualrooms.VirtualRoomsManager) *Virtua
         virtualRoomsManager: manager,
     }
 }
+func (self VirtualRoomController) VerificarSeSalaParouDeTransmitir(text string) (bool, string) {
+	re := regexp.MustCompile(`Sala (.+) não está mais transmitindo!`)
+
+	// Verificando se a string corresponde ao padrão
+	if re.MatchString(text) {
+		fmt.Println("A string corresponde ao padrão!")
+
+		// Capturando o nome da sala
+		matches := re.FindStringSubmatch(text)
+		if len(matches) > 1 {
+			roomName := matches[1] // O segundo item (índice 1) é o nome da sala capturado
+			fmt.Printf("Nome da sala: %s\n", roomName)
+            return true, roomName
+		}
+	}
+    return false, ""
+}
 func (self *VirtualRoomController) defaultErrorReturn(err error, c echo.Context) error {
     fmt.Println(err)
     return c.Redirect(303, "/?error=We are facing some issues, contact the admin")
@@ -36,6 +54,10 @@ func (self *VirtualRoomController) Index(c echo.Context) error {
 func (self *VirtualRoomController) IndexUsers(c echo.Context) error {
     pageData := self.getPageData(c)
     error := c.QueryParam("error")
+    roomNameDisabled, roomName := self.VerificarSeSalaParouDeTransmitir(c.QueryParam("error"))
+    if roomNameDisabled {
+        self.virtualRoomsManager.DeleteKey("room:"+roomName)
+    }
     if error != "" {
         pageData["user_error"] = error
         return c.Render(400, "user.tmpl", pageData)
