@@ -14,7 +14,6 @@ playPauseButton.addEventListener("click",({target}) => {
 const playPauseAnimation = play => {
     const playDiv = document.getElementById('play');
     const pauseDiv = document.getElementById('pause');
-    console.log({play})
     if (play == "play") {
         pauseDiv.classList.add("hidden")
         playDiv.classList.remove("hidden")
@@ -175,6 +174,13 @@ const handlePlayerEvents = (data) => {
             }
             window.player_manager.time = 0;
             window.player_manager.state = "waiting"
+            break;
+        case "player::change-time":
+            window.player.seekTo(parseInt(data.meta.time), false)
+            window.player_manager.time = parseInt(data.meta.time)
+            window.markToolTip(parseInt(data.meta.time))
+            window.dismarkToolTip(parseInt(data.meta.time))
+            window.sendRoomAction("player::pause");
             break;
         default:
             console.log(value, "Não reconhecido");
