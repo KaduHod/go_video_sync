@@ -161,7 +161,7 @@ func (self *VirtualRoomController) RoomIndex(c echo.Context) error {
         url := fmt.Sprintf("/app/user?error=%s", err.Error())
         return c.Redirect(303, url)
     }
-        if room.Admin.Id != user.Id && room.Guest.Id != user.Id {
+        if room.Admin.Id != user.Id && (room.Guest.Id != user.Id && room.Guest.Id != "") {
         url := fmt.Sprintf("/app/user?error=Not allowed in the room")
         return c.Redirect(303, url)
     }
@@ -215,4 +215,46 @@ func (self *VirtualRoomController) GuestRoomJoin(c echo.Context) error {
         return c.Redirect(303, "/join/room/"+self.getParam("roomName", c)+"/?error=" + err.Error())
     }
     return c.Redirect(303, "/app/room/"+self.getParam("roomName", c))
+}
+func (self *VirtualRoomController) LoguedGuestRoomJoin(c echo.Context) error {
+    session, err := self.getSession(c)
+    if err != nil {
+        return self.defaultErrorReturn(err, c)
+    }
+    roomName := self.getParam("roomName", c)
+    room, err := self.virtualRoomsManager.GetRoom(roomName)
+    if err != nil {
+        return self.defaultErrorReturn(err, c)
+    }
+    if room.Admin.Id == session.Values["user_id"] {
+        return c.Redirect(303, "/app/room/"+roomName)
+    }
+    if room.Guest.Id == session.Values["user_id"] {
+        return c.Redirect(303, "/app/room/"+roomName)
+    }
+    if room.Guest.Id != "" {
+        return c.Redirect(303, "/app/user?error=Sala está cheia!")
+    }
+    user, err := self.virtualRoomsManager.GetUser(session.Values["user_name"].(string))
+    if err != nil {
+        return self.defaultErrorReturn(err, c)
+    }
+    if err:= self.virtualRoomsManager.GuestJoinRoom(user, c.FormValue("password"), roomName); err != nil {
+        fmt.Println(err)
+        return c.Redirect(303, "/app/room/join/"+roomName)
+    }
+    return c.Redirect(303, "/app/room/"+roomName)
+}
+func (self *VirtualRoomController) LoguedGuestRoomJoinForm(c echo.Context) error {
+    pageData := self.getPageData(c)
+    pageData["user_type"] = "Admin"
+    roomName := self.getParam("roomName", c)
+    room, err := self.virtualRoomsManager.GetRoom(roomName)
+    if err != nil {
+        return self.defaultErrorReturn(err, c)
+    }
+    pageData["room"] = room
+    pageData["room_name"] = roomName
+    pageData["logged"] = true
+    return c.Render(200, "guest.tmpl", pageData)
 }
