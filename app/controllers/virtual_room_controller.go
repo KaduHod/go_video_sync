@@ -33,8 +33,7 @@ func (self VirtualRoomController) VerificarSeSalaParouDeTransmitir(text string) 
 		// Capturando o nome da sala
 		matches := re.FindStringSubmatch(text)
 		if len(matches) > 1 {
-			roomName := matches[1] // O segundo item (índice 1) é o nome da sala capturado
-			fmt.Printf("Nome da sala: %s\n", roomName)
+			roomName := matches[1]
             return true, roomName
 		}
 	}
