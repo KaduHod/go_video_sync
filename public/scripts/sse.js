@@ -123,6 +123,9 @@ const setUpCounter = () => {
         if(tempoTotal == "00:00") {
             tempoTotal = window.formatarTempo(window.player.getDuration())
         }
+        if(window.player_manager.time > window.player.getDuration()) {
+            return;
+        }
         if (document.getElementById("slider-container") && document.getElementById("slider-container").getAttribute("status") == "waiting") {
             console.log("criadoSlider")
             window.createSlider(window.player.getDuration())
