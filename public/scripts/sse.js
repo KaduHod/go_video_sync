@@ -3,23 +3,24 @@ const userName = window.user_name;
 const closeRoom = document.getElementById('close-room');
 const csrf = document.getElementById('csrf').value;
 const playPauseButton = document.getElementById('pausePlayButton')
-let play = true;//"paused"
 playPauseButton.addEventListener("click",({target}) => {
-    play = !play
-    if(play)
+    const nextAction = document.getElementById('play').classList.contains("hidden") ? "pause" : "play";
+    console.log({nextAction})
+    if(nextAction == "pause")
         sendRoomAction("player::pause")
     else
         sendRoomAction("player::resume")
 })
 const playPauseAnimation = play => {
-    const bar1 = document.getElementById('play');
-    const bar2 = document.getElementById('pause');
+    const playDiv = document.getElementById('play');
+    const pauseDiv = document.getElementById('pause');
+    console.log({play})
     if (play == "play") {
-        bar1.classList.remove("hidden")
-        bar2.classList.add("hidden")
+        pauseDiv.classList.add("hidden")
+        playDiv.classList.remove("hidden")
     } else {
-        bar1.classList.add("hidden");
-        bar2.classList.remove("hidden");
+        playDiv.classList.add("hidden");
+        pauseDiv.classList.remove("hidden");
     }
 }
 async function sendRoomAction(action, meta) {
@@ -70,7 +71,10 @@ if(window.user.type == "admin") {
     const addVideoButton = document.getElementById('loadVideoButton')
     addVideoButton.addEventListener("click", (e) => {
         console.log({e})
-        const videoUrl = document.getElementById('videoUrl').value
+        let videoUrl = `${document.getElementById('videoUrl').value}`
+        if(!videoUrl.startsWith("https://")) {
+            videoUrl = "https://" + videoUrl
+        }
         if(!window.isValidYouTubeUrl(videoUrl)) {
             console.log("Url inválida")
             document.getElementById("videoUrl").value = ""
@@ -114,18 +118,23 @@ const setUpCounter = () => {
     if (!window.player || !window.player.getDuration) return false
     let duration = window.player.getDuration();
     let tempoTotal = window.formatarTempo(duration);
-    console.log({tempoTotal, duration})
     const incrementaCounter = () => {
         window.player_manager.time++
         if(tempoTotal == "00:00") {
             tempoTotal = window.formatarTempo(window.player.getDuration())
         }
-        console.log(window.player_manager.time, tempoTotal)
-        counter.innerText = window.formatarTempo(window.player_manager.time) + " / " + tempoTotal
+        if (document.getElementById("slider-container") && document.getElementById("slider-container").getAttribute("status") == "waiting") {
+            console.log("criadoSlider")
+            window.createSlider(window.player.getDuration())
+            document.getElementById("slider-container").setAttribute("status", "playing")
+        } else {
+            window.markToolTip(window.player_manager.time)
+        }
+        counter.innerText = window.formatarTempo(window.player_manager.time -1) + "/" + tempoTotal
     }
     return setInterval(incrementaCounter, 1000);
 }
-playPauseAnimation("pause")
+//playPauseAnimation("pause")
 window.setUpCounter = setUpCounter
 const handlePlayerEvents = (data) => {
     const { value } = data;
@@ -133,7 +142,7 @@ const handlePlayerEvents = (data) => {
     switch (value) {
         case "player::pause":
             window.player.pauseVideo();
-            playPauseAnimation("pause");
+            playPauseAnimation("play");
             if (window.player_manager) {
                 window.player_manager.state = "paused";
                 clearInterval(window.player_manager.interval);
@@ -142,7 +151,7 @@ const handlePlayerEvents = (data) => {
             break;
         case "player::resume":
             window.player.playVideo();
-            playPauseAnimation("play");
+            playPauseAnimation("pause");
             if (window.player_manager) {
                 if (window.player_manager.state === "waiting") {
                     window.player_manager.interval = setUpCounter();
@@ -153,11 +162,16 @@ const handlePlayerEvents = (data) => {
         case "player::change-video":
             window.player.loadVideoById(window.getYouTubeVideoId(data.meta.url), 0); // Altera o vídeo para o novo ID
             window.player.pauseVideo();
+            playPauseAnimation("play");
             if (window.player_manager) {
                 window.player_manager.videoUrl = data.meta.url;
-
-                window.player_manager.state = "waiting";
             }
+            document.getElementById("slider-container").setAttribute("status", "waiting")
+            if(window.player_manager.interval) {
+                clearInterval(window.player_manager.interval)
+            }
+            window.player_manager.time = 0;
+            window.player_manager.state = "waiting"
             break;
         default:
             console.log(value, "Não reconhecido");
