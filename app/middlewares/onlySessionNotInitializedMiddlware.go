@@ -10,12 +10,11 @@ import (
 func OnlySessionNotInitialized(next echo.HandlerFunc) echo.HandlerFunc {
     return func(c echo.Context) error {
         session, err := session.Get("session", c)
-        if err == nil || session == nil || session.Values["user_id"] == nil {
+        if err == nil && session.Values["user_id"] != nil {
             room, linkDeConvidado := extractRoomName(c.Request().RequestURI)
             if linkDeConvidado && c.Request().Method == "GET" {
                 return c.Redirect(303, "/app/join/room/"+room)
             }
-            return next(c)
         }
         return next(c)
     }
