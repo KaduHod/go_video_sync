@@ -2,13 +2,15 @@ window.appendMessage = function(name, text, time = null) {
     const messagesContainer = document.getElementById("messages-container");
     const messageTime = time || new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     const messageDiv = document.createElement("div");
-    messageDiv.classList.add("bg-gray-500", "text-white", "p-2", "rounded-lg", "max-w-xs");
+    messageDiv.classList.add(name === window.user_name ? "self-end" : "self-start");
+    messageDiv.classList.add(name === window.user_name ? "bg-purple-600" : "bg-red-500", "text-white", "p-2", "rounded-lg", "max-w-xs");
     const messageText = document.createElement("div");
     messageText.textContent = text;
     const footerDiv = document.createElement("div");
     footerDiv.classList.add("text-sm", "text-gray-300", "mt-1", "flex", "justify-between");
     const timeSpan = document.createElement("span");
     timeSpan.textContent = messageTime;
+    timeSpan.classList.add("mr-2");
     const nameSpan = document.createElement("span");
     nameSpan.textContent = name;
     footerDiv.appendChild(timeSpan);

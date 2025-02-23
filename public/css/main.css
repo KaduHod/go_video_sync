@@ -710,6 +710,10 @@ video {
   margin-left: 1rem;
 }
 
+.mr-2 {
+  margin-right: 0.5rem;
+}
+
 .block {
   display: block;
 }
@@ -866,6 +870,10 @@ video {
   justify-content: flex-start;
 }
 
+.justify-end {
+  justify-content: flex-end;
+}
+
 .justify-center {
   justify-content: center;
 }
@@ -973,6 +981,11 @@ video {
 .border-gray-600 {
   --tw-border-opacity: 1;
   border-color: rgb(75 85 99 / var(--tw-border-opacity, 1));
+}
+
+.border-sky-50 {
+  --tw-border-opacity: 1;
+  border-color: rgb(240 249 255 / var(--tw-border-opacity, 1));
 }
 
 .bg-gray-700 {
