@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"errors"
 	"fmt"
 	"html/template"
 	"kaduhod/video-sync/app/utils"
@@ -28,9 +29,6 @@ func (self VirtualRoomController) VerificarSeSalaParouDeTransmitir(text string) 
 
 	// Verificando se a string corresponde ao padrão
 	if re.MatchString(text) {
-		fmt.Println("A string corresponde ao padrão!")
-
-		// Capturando o nome da sala
 		matches := re.FindStringSubmatch(text)
 		if len(matches) > 1 {
 			roomName := matches[1]
@@ -138,7 +136,7 @@ func (self *VirtualRoomController) NewRoom(c echo.Context) error {
         Name: name,
         Password: senhaHash,
         GuestLink: template.URL(c.Request().Host+"/join/room/" + name),
-        Admin: user,
+        Admin: &user,
     }
     if err := self.virtualRoomsManager.AddRoom(room); err != nil {
         return self.defaultErrorReturn(err, c)
@@ -161,7 +159,7 @@ func (self *VirtualRoomController) RoomIndex(c echo.Context) error {
         url := fmt.Sprintf("/app/user?error=%s", err.Error())
         return c.Redirect(303, url)
     }
-        if room.Admin.Id != user.Id && (room.Guest.Id != user.Id && room.Guest.Id != "") {
+        if room.Admin.Id != user.Id && (room.Guest.Id != user.Id && room.Guest != nil) {
         url := fmt.Sprintf("/app/user?error=Not allowed in the room")
         return c.Redirect(303, url)
     }
@@ -226,14 +224,17 @@ func (self *VirtualRoomController) LoguedGuestRoomJoin(c echo.Context) error {
     if err != nil {
         return self.defaultErrorReturn(err, c)
     }
-    if room.Admin.Id == session.Values["user_id"] {
-        return c.Redirect(303, "/app/room/"+roomName)
+    if room.Admin == nil {
+        return self.defaultErrorReturn(errors.New("Room not found"), c)
     }
-    if room.Guest.Id == session.Values["user_id"] {
-        return c.Redirect(303, "/app/room/"+roomName)
-    }
-    if room.Guest.Id != "" {
+    if room.Guest != nil {
         return c.Redirect(303, "/app/user?error=Sala está cheia!")
+    }
+    if room.Admin != nil && room.Admin.Id == session.Values["user_id"] {
+        return c.Redirect(303, "/app/room/"+roomName)
+    }
+    if room.Guest != nil && room.Guest.Id == session.Values["user_id"] {
+        return c.Redirect(303, "/app/room/"+roomName)
     }
     user, err := self.virtualRoomsManager.GetUser(session.Values["user_name"].(string))
     if err != nil {

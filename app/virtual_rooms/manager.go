@@ -73,7 +73,7 @@ func (self *VirtualRoomsManager) Init() {
             Name: "Teste",
             Password: pass,
             GuestLink: template.URL("http://localhost:3003/join/room/Teste"),
-            Admin: userAdmin,
+            Admin: &userAdmin,
         }
         if err := self.AddRoom(testRoom); err != nil {
             panic(err)
@@ -129,13 +129,13 @@ func (self *VirtualRoomsManager) GuestJoinRoom(guest User, password string, room
     if err != nil {
         return err
     }
-    if roomRedis.Guest.Id != "" {
+    if roomRedis.Guest != nil {
         return errors.New("Room is already full")
     }
     if !utils.CheckPasswordHash(password, roomRedis.Password) {
         return errors.New("Wrong password")
     }
-    roomRedis.Guest = guest
+    roomRedis.Guest = &guest
     if err := self.RedisConn.Set(self.Ctx, "room:"+roomName, utils.JsonEncode(roomRedis), self.DefaultExpirationTime).Err(); err != nil {
         return err
     }

@@ -55,6 +55,7 @@ eventSource.onmessage = function(event) {
         redirecionarUsuario("O stream da sala foi fechado pelo admin.");
     }
     if(data.value.includes("player::")) handlePlayerEvents(data)
+    else if(data.value.includes("notification::")) handleNotificationEvents(data)
     else handleRoomEvents(data)
 };
 const bothUsersReady = () => {
@@ -85,7 +86,7 @@ window.updateStateStatus = "disable"
 window.updateState = () => {
     window.updateStateStatus = "enable"
     setInterval(() => {
-        window.sendRoomAction("update::ping", window.user)
+        //window.sendRoomAction("update::ping", window.user)
     }, 3000)
 }
 const isGuest = eventData => eventData.meta.type != window.user.type
@@ -106,6 +107,17 @@ const handleRoomEvents = (data) => {
                     window.updateState()
             }
             console.log("Dados", data)
+            break;
+        default:
+            console.log("Tipo nao reconhecido", value)
+            break;
+    }
+}
+const handleNotificationEvents = (data) => {
+    const {value} = data
+    switch (value) {
+        case "notification::user-leave":
+            console.log({data})
             break;
         default:
             console.log("Tipo nao reconhecido", value)

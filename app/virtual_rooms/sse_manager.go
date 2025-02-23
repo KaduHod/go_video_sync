@@ -50,10 +50,19 @@ func (self *SSEManager) StartRoom(room *Room) {
                 fmt.Println("Problema com o canal >> ", value)
                 return
             } else {
-                guest := self.Users[room.Guest.Name]
-                if guest != nil {
-                    //fmt.Println("Enviou para o guest")
-                    self.Send(value, guest)
+                if value.Value == "notification::user-leave" {
+                    if value.Sender.Id == room.Admin.Id {
+                        room.Close()
+                        return
+                    } else {
+                        room.Guest = nil
+                    }
+                }
+                if room.Guest != nil {
+                    guest := self.Users[room.Guest.Name]
+                    if guest != nil {
+                        self.Send(value, guest)
+                    }
                 }
                 admin := self.Users[room.Admin.Name]
                 if admin != nil {

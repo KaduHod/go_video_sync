@@ -41,6 +41,7 @@ func (self *SSEController) StreamRoom(c echo.Context) error {
     if room.Admin.Id == user.Id {
         listener := make(chan virtualrooms.SSEMessage)
         room.SetListener(listener)
+        room.SetAdmin(&user)
         self.sseManager.AddRoomSSE(&room)
         go self.sseManager.StartRoom(&room)
     } else {
@@ -49,15 +50,21 @@ func (self *SSEController) StreamRoom(c echo.Context) error {
             fmt.Println("Room not found")
             return c.String(400, "Room not found")
         }
-        existentRoom.SetGuest(user)
+        existentRoom.SetGuest(&user)
     }
     self.sseManager.AddUserSSE(&c, &user)
-    fmt.Println("Adiciondo User: ", user.Name, " na room: ", room.Name)
     c.Response().Header().Set(echo.HeaderContentType, "text/event-stream")
     c.Response().Header().Set(echo.HeaderCacheControl, "no-cache")
     c.Response().Header().Set(echo.HeaderConnection, "keep-alive")
     user.Pong()
     <-c.Request().Context().Done()
+    fmt.Println("Saiu >>", user.Name)
+    roomSse, ok := self.sseManager.Rooms[room.Name]
+    if !ok || roomSse == nil {
+        fmt.Println("Room not found")
+        return c.String(400, "Room not found")
+    }
+    roomSse.AfterUserLeave(&user)
     return nil
 }
 func (self *SSEController) Post(c echo.Context) error {
