@@ -196,3 +196,38 @@ func (self *VirtualRoomsManager) GetUser(userName string) (User, error) {
     utils.JsonDecode(userStr, &user)
     return user, nil
 }
+func (self *VirtualRoomsManager) RemoveUserFromRoom(user User, room Room) error {
+    roomExists, err := self.RoomExists(room.Name)
+    if err != nil {
+        return err
+    }
+    if !roomExists {
+        return errors.New("Room does not exist")
+    }
+    userExists, err := self.UserExists(user.Name)
+    if err != nil {
+        return err
+    }
+    if !userExists {
+        return errors.New("User does not exist")
+    }
+    room, err = self.GetRoom(room.Name)
+    if err != nil {
+        return err
+    }
+    user, err = self.GetUser(user.Name)
+    if err != nil {
+        return err
+    }
+    if user.Id == room.Admin.Id {
+        room.Admin = nil
+    } else {
+        room.Guest = nil
+    }
+    roomStr := utils.JsonEncode(room)
+    _, err = self.RedisConn.Set(self.Ctx ,"room:"+room.Name, roomStr, self.DefaultExpirationTime).Result()
+    if err != nil {
+        return err
+    }
+    return nil
+}

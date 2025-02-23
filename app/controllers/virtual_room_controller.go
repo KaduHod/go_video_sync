@@ -39,10 +39,17 @@ func (self VirtualRoomController) VerificarSeSalaParouDeTransmitir(text string) 
 }
 func (self *VirtualRoomController) defaultErrorReturn(err error, c echo.Context) error {
     fmt.Println(err)
-    return c.Redirect(303, err.Error())//"/?error=We are facing some issues, contact the admin")
+    return c.Redirect(303, "/?error=" + err.Error())//"/?error=We are facing some issues, contact the admin")
 }
 func (self *VirtualRoomController) Index(c echo.Context) error {
     pageData := self.getPageData(c)
+    session, err := self.getSession(c)
+    if err == nil {
+        session.Values = make(map[interface{}]interface{})
+        if err := session.Save(c.Request(), c.Response()); err != nil {
+            fmt.Println("Erro ao deletar sessao")
+        }
+    }
     if c.QueryParam("error") != "" {
         pageData["user_error"] = c.QueryParam("error")
     }
@@ -224,11 +231,11 @@ func (self *VirtualRoomController) LoguedGuestRoomJoin(c echo.Context) error {
     if err != nil {
         return self.defaultErrorReturn(err, c)
     }
-    if room.Admin == nil {
-        return self.defaultErrorReturn(errors.New("Room not found"), c)
-    }
     if room.Guest != nil {
         return c.Redirect(303, "/app/user?error=Sala está cheia!")
+    }
+    if room.Admin == nil {
+        return self.defaultErrorReturn(errors.New("Room not found"), c)
     }
     if room.Admin != nil && room.Admin.Id == session.Values["user_id"] {
         return c.Redirect(303, "/app/room/"+roomName)

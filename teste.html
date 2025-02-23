@@ -1,0 +1,75 @@
+
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Slider Customizado</title>
+</head>
+<body class="flex items-center justify-center h-screen bg-gray-100">
+
+    <div id="slider-container" class="relative w-64 h-10 flex items-center">
+        <!-- O slider será gerado aqui -->
+    </div>
+
+    <script>
+        const formatarTempo = (segundos) => {
+            // Calcula os minutos e segundos
+            segundos = Math.round(segundos);
+            const minutos = Math.floor(segundos / 60); // Arredonda para baixo
+            const segundosRestantes = segundos % 60; // Obtém os segundos restantes
+
+            // Formata os minutos e segundos para sempre ter dois dígitos
+            const minutosFormatados = String(minutos).padStart(2, '0');
+            const segundosFormatados = String(segundosRestantes).padStart(2, '0');
+
+            // Retorna no formato "mm:ss"
+            return `${minutosFormatados}:${segundosFormatados}`;
+        }
+
+function getTooltipText(index) {
+    return `Breakpoint ${index}`; // Exemplo de texto dinâmico
+}
+
+function createSlider(breakpoints) {
+    const sliderContainer = document.getElementById('slider-container');
+    sliderContainer.innerHTML = ''; // Limpa qualquer conteúdo anterior
+
+    // Criar a trilha (linha do slider)
+    const track = document.createElement('div');
+    track.className = 'w-full h-2 bg-gray-300 rounded-full relative';
+    sliderContainer.appendChild(track);
+
+    // Criar os breakpoints (pequenos traços)
+    for (let i = 0; i <= breakpoints; i++) {
+        const marker = document.createElement('div');
+        marker.className = 'absolute w-2 h-2 bg-gray-700 rounded-full transform -translate-x-1/2 -top-1 cursor-pointer';
+
+        // Definir a posição de cada marcador
+        const position = (i / breakpoints) * 100;
+        marker.style.left = `${position}%`;
+
+        // Criar tooltip
+        const tooltip = document.createElement('div');
+        tooltip.className = 'absolute -top-8 left-1/2 -translate-x-1/2 px-2 py-1 bg-gray-900 text-white text-xs rounded opacity-0 transition-opacity duration-200 pointer-events-none';
+        tooltip.innerText = formatarTempo(i) + "/" + "10:00";
+
+        // Eventos para exibir/esconder tooltip
+        marker.addEventListener('mouseenter', () => {
+            tooltip.classList.remove('opacity-0');
+        });
+        marker.addEventListener('mouseleave', () => {
+            tooltip.classList.add('opacity-0');
+        });
+
+        marker.appendChild(tooltip);
+        track.appendChild(marker);
+    }
+}
+
+createSlider(600); // Exemplo: Cria um slider com 5 breakpoints
+    </script>
+
+</body>
+</html>

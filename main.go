@@ -70,7 +70,7 @@ func main() {
     }))
     manager := virtualrooms.NewVirtualRoomsManager()
     manager.Init()
-    sseManager := virtualrooms.NewSSEManager()
+    sseManager := virtualrooms.NewSSEManager(manager)
     vrmController := controllers.NewVirtualRoomController(manager)
     sseControler := controllers.NewSSEController(manager, sseManager)
     notSessionGroup := e.Group("")

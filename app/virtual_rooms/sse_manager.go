@@ -11,11 +11,13 @@ import (
 type SSEManager struct {
     Rooms map[string]*Room
     Users map[string]*User
+    manager *VirtualRoomsManager
 }
-func NewSSEManager() *SSEManager {
+func NewSSEManager(manager *VirtualRoomsManager) *SSEManager {
     return &SSEManager{
         Rooms: make(map[string]*Room),
         Users: make(map[string]*User),
+        manager: manager,
     }
 }
 func (self *SSEManager) AddUserSSE(c *echo.Context, user *User) {
@@ -56,6 +58,9 @@ func (self *SSEManager) StartRoom(room *Room) {
                         return
                     } else {
                         room.Guest = nil
+                    }
+                    if err := self.manager.RemoveUserFromRoom(value.Sender, *room); err != nil {
+                        fmt.Println("ERROR", err)
                     }
                 }
                 if room.Guest != nil {
