@@ -24,7 +24,8 @@
                 </button>
             </div>
         </header>
-
+        <div id="notifications" class="fixed top-0 right-0 w-64 h-full flex flex-col space-y-4 p-4 overflow-hidden pointer-events-auto">
+        </div>
         <main class="flex w-full flex-1 mt-4 flex-col items-center justify-center space-y-6">
             <div class="w-full max-w-md p-4 flex justify-start">
                 <h1 class="text-4xl font-bold text-center text-purple-400 mb-4">
@@ -54,21 +55,21 @@
 
                     <div id="ytplayer"></div>
                     <div class="w-full flex justify-start controls space-x-4">
-                    <div class="w-full flex justify-start controls space-x-4">
-                        <button id="pausePlayButton" class="relative w-12 h-10 p-3 flex items-center justify-center bg-purple-600 text-whit rounded-md hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purle-500 transition">
-                            <img src="/public/images/play.svg" id="play" class=""></img>
-                            <img src="/public/images/pause.svg" id="pause" class="hidden"></img>
-                        </button>
+                        <div class="w-full flex justify-start controls space-x-4">
+                            <button id="pausePlayButton" class="relative w-12 h-10 p-3 flex items-center justify-center bg-purple-600 text-whit rounded-md hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purle-500 transition">
+                                <img src="/public/images/play.svg" id="play" class=""></img>
+                                <img src="/public/images/pause.svg" id="pause" class="hidden"></img>
+                            </button>
 
-                        <div id="counter-video" class="text-center text-sm tracking-tight flex items-center">
+                            <div id="counter-video" class="text-center text-sm tracking-tight flex items-center">
 
-                        </div>
-                        <div id="slider-container" status="waiting" data-status="waiting" class="relative flex-grow h-10 flex items-center">
+                            </div>
+                            <div id="slider-container" status="waiting" data-status="waiting" class="relative flex-grow h-10 flex items-center">
 
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
         </main>
         <input name="csrf" id="csrf" type="hidden" value="{{ .csrf }}">
 

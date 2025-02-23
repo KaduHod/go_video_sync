@@ -74,6 +74,22 @@ func (self *SSEManager) StartRoom(room *Room) {
                     //fmt.Println("Enviou para o admin")
                     self.Send(value, admin)
                 }
+                if value.Value == "player::change-time" {
+                    eventPause := SSEMessage{
+                        Sender: User{
+                            Id: "",
+                            Name: "Server",
+                        },
+                        Value: "player::pause",
+                    }
+                    self.Send(eventPause, admin)
+                    if room.Guest != nil {
+                        guest := self.Users[room.Guest.Name]
+                        if guest != nil {
+                            self.Send(eventPause, guest)
+                        }
+                    }
+                }
             }
         }
     }

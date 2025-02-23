@@ -42,3 +42,12 @@ func (self *Room) AfterUserLeave(user *User) {
     }
     self.GetListenerWriter() <- event
 }
+func (self *Room) AfterUserJoin(user *User) {
+    event := SSEMessage{
+        Value: "notification::user-join",
+        RoomName: self.Name,
+        Sender: *user,
+        Timestamp: time.Now(),
+    }
+    self.GetListenerWriter() <- event
+}
