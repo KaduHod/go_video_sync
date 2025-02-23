@@ -125,32 +125,38 @@ func (self *SSEController) CloseRoom(c echo.Context) error {
         fmt.Println(err)
         return c.String(400, err.Error())
     }
-    guestUserRedis, err := self.virtualRoomsManager.GetUser(roomRedis.Guest.Name)
-    if err != nil {
-        fmt.Println(err)
-        return c.String(400, err.Error())
+    hasGuest := roomRedis.Guest != nil
+    var guestUserRedis virtualrooms.User
+    if hasGuest {
+        guestUserRedis, err = self.virtualRoomsManager.GetUser(roomRedis.Guest.Name)
+        if err != nil {
+            fmt.Println(err)
+            return c.String(400, err.Error())
+        }
     }
     roomRedisSse := self.sseManager.Rooms[roomRedis.Name]
     if roomRedisSse == nil {
         fmt.Println("Room not found")
         return c.String(400, "Room not found")
     }
-    guest := self.sseManager.Users[guestUserRedis.Name]
+    if hasGuest {
+        guest := self.sseManager.Users[guestUserRedis.Name]
+        if guest == nil {
+            fmt.Println("Guest not found")
+            return c.String(400, "User not found")
+        }
+        guest.NotifyCloseRoom()
+        if err := guest.CloseSSE(); err != nil {
+            fmt.Println(err)
+            return c.String(400, err.Error())
+        }
+    }
     admin := self.sseManager.Users[adminUserRedis.Name]
     if admin == nil {
         fmt.Println("Admin not found")
         return c.String(400, "Admin not found")
     }
-    if guest == nil {
-       fmt.Println("Guest not found")
-       return c.String(400, "User not found")
-    }
-    guest.NotifyCloseRoom()
     admin.NotifyCloseRoom()
-    if err := guest.CloseSSE(); err != nil {
-        fmt.Println(err)
-        return c.String(400, err.Error())
-    }
     if err := admin.CloseSSE(); err != nil {
         fmt.Println(err)
         return c.String(400, err.Error())
