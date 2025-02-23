@@ -55,6 +55,7 @@ func (self *SSEManager) StartRoom(room *Room) {
                 if value.Value == "notification::user-leave" {
                     if value.Sender.Id == room.Admin.Id {
                         room.Close()
+                        self.DeleteRoom(room.Name)
                         return
                     } else {
                         room.Guest = nil

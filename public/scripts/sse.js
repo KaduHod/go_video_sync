@@ -56,6 +56,7 @@ eventSource.onmessage = function(event) {
     }
     if(data.value.includes("player::")) handlePlayerEvents(data)
     else if(data.value.includes("notification::")) handleNotificationEvents(data)
+    else if(data.value.includes("chat::")) window.handleChatEvent(data)
     else handleRoomEvents(data)
 };
 const bothUsersReady = () => {

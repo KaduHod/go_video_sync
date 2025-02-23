@@ -24,19 +24,11 @@
                 </button>
             </div>
         </header>
-        <div id="notifications" class="fixed top-0 right-0 w-64 h-full flex flex-col space-y-4 p-4 overflow-hidden pointer-events-auto">
-        </div>
-        <main class="flex w-full flex-1 mt-4 flex-col items-center justify-center space-y-6">
-            <div class="w-full max-w-md p-4 flex justify-start">
-                <h1 class="text-4xl font-bold text-center text-purple-400 mb-4">
-                    🎬 Sala: <span class="text-purple-500">{{ .room.Name }}</span>
-                </h1>
-            </div>
-
-            <div id="Player" class="flex flex-col items-center">
-                <!-- Container que une o player e os controles -->
-                <div class="player-container bg-gray-800 p-4 rounded-lg flex flex-col items-center space-y-4">
-                    <!-- Botões adicionais abaixo da estrutura do player -->
+        <div id="notifications" class="fixed top-0 bg-opacity-20 left-0 w-64 h-full flex flex-col space-y-4 p-4 overflow-hidden pointer-events-auto z-10"></div>
+        <main class="flex w-full h-screen flex-1 mt-4 flex-row items-start justify-center space-x-6">
+            <!-- Player -->
+            <div id="Player" class="w-2/3 flex flex-col items-center">
+                <div class="player-container bg-gray-800 p-4 rounded-lg flex flex-col items-center space-y-4 w-full">
                     {{ if eq .user_type "Admin" }}
                     <div class="w-full flex justify-start space-x-4">
                         <button id="copiar-link" class="bg-purple-600 px-2 py-2 text-white rounded-md text-sm shadow-md hover:bg-purple-700 focus:outline-none focus:ring-4 focus:ring-purple-500 transition-all">
@@ -46,30 +38,40 @@
                             Terminar sessão
                         </button>
                     </div>
-
                     <div class="w-full flex justify-start space-x-4">
                         <input type="text" id="videoUrl" placeholder="Insira a URL do vídeo" class="flex-1 p-2 bg-gray-700 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 transition" />
-                        <button id="loadVideoButton" class="flex-5 bg-purple-600 text-white p-2 rounded-md hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purle-500 transition">Carregar Vídeo</button>
+                        <button id="loadVideoButton" class="flex-5 bg-purple-600 text-white p-2 rounded-md hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 transition">Carregar Vídeo</button>
                     </div>
                     {{ end }}
 
-                    <div id="ytplayer"></div>
+                    <div id="ytplayer" class="w-full"></div>
                     <div class="w-full flex justify-start controls space-x-4">
-                        <div class="w-full flex justify-start controls space-x-4">
-                            <button id="pausePlayButton" class="relative w-12 h-10 p-3 flex items-center justify-center bg-purple-600 text-whit rounded-md hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purle-500 transition">
-                                <img src="/public/images/play.svg" id="play" class=""></img>
-                                <img src="/public/images/pause.svg" id="pause" class="hidden"></img>
-                            </button>
-
-                            <div id="counter-video" class="text-center text-sm tracking-tight flex items-center">
-
-                            </div>
-                            <div id="slider-container" status="waiting" data-status="waiting" class="relative flex-grow h-10 flex items-center">
-
-                            </div>
-                        </div>
+                        <button id="pausePlayButton" class="relative w-12 h-10 p-3 flex items-center justify-center bg-purple-600 text-white rounded-md hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 transition">
+                            <img src="/public/images/play.svg" id="play" class="">
+                            <img src="/public/images/pause.svg" id="pause" class="hidden">
+                        </button>
+                        <div id="counter-video" class="text-center text-sm tracking-tight flex items-center"></div>
+                        <div id="slider-container" status="waiting" data-status="waiting" class="relative flex-grow h-10 flex items-center"></div>
                     </div>
                 </div>
+            </div>
+
+
+
+
+            <div id="chat-container" class="w-1/3 h-fit bg-gray-800 p-4 rounded-lg flex flex-col items-center space-y-4">
+                <h2 class="text-lg font-semibold text-white">Chat</h2>
+                <div id="messages-container" class="w-full flex-1 bg-gray-700 rounded-md p-2 overflow-auto space-y-2">
+                </div>
+                <div class="w-full flex items-center space-x-2 mt-2">
+                    <input type="text" id="chat-input" class="flex-1 p-2 bg-gray-700 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 transition" placeholder="Digite uma mensagem..." />
+                    <button id="send-message" class="p-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 transition">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M12 5l7 7-7 7" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
         </main>
         <input name="csrf" id="csrf" type="hidden" value="{{ .csrf }}">
 
@@ -136,6 +138,7 @@
         <script src="/public/scripts/player.js"></script>
         <script src="/public/scripts/youtube.js"></script>
         <script src="/public/scripts/notifications.js"></script>
+        <script src="/public/scripts/chat.js"></script>
         <script src="/public/scripts/sse.js"></script>
     </body>
 </html>

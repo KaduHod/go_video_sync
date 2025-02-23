@@ -57,7 +57,7 @@ func (self *SSEController) StreamRoom(c echo.Context) error {
     c.Response().Header().Set(echo.HeaderCacheControl, "no-cache")
     c.Response().Header().Set(echo.HeaderConnection, "keep-alive")
     user.Pong()
-     roomSse, ok := self.sseManager.Rooms[room.Name]
+    roomSse, ok := self.sseManager.Rooms[room.Name]
     if !ok || roomSse == nil {
         fmt.Println("Room not found")
         return c.String(400, "Room not found")
