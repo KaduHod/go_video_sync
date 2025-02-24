@@ -196,7 +196,7 @@ func (self *VirtualRoomController) GuestRoomJoin(c echo.Context) error {
         return self.defaultErrorReturn(err, c)
     }
     if userExists {
-        return c.Redirect(303, "/join/room/"+self.getParam("roomName", c)+"?error=User already exists")
+        return c.Redirect(303, "/join/room/"+self.getParam("roomName", c)+"?error=Nome de usuário indisponível")
     }
     user := virtualrooms.User {
         Id: uuid.New().String(),
