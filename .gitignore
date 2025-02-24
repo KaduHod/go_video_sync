@@ -4,3 +4,5 @@ tmp/
 sync-video
 node_modules
 package-lock.json
+.env
+.env.prod
