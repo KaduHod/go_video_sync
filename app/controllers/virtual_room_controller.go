@@ -166,8 +166,11 @@ func (self *VirtualRoomController) RoomIndex(c echo.Context) error {
         url := fmt.Sprintf("/app/user?error=%s", err.Error())
         return c.Redirect(303, url)
     }
-        if room.Admin.Id != user.Id && (room.Guest.Id != user.Id && room.Guest != nil) {
-        url := fmt.Sprintf("/app/user?error=Not allowed in the room")
+    if room.Admin.Name != user.Name && room.Guest == nil {
+        return c.Redirect(303, "/app/user?error=Parece que você quer entrar em uma sala que não possuí permissão. Para acessá-la peça o link de convidado do Admin!")
+    }
+    if room.Admin.Id != user.Id && (room.Guest.Id != user.Id && room.Guest != nil) {
+        url := fmt.Sprintf("/app/user?error=Entrada não autorizada")
         return c.Redirect(303, url)
     }
     pageData["room"] = room
