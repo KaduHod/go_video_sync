@@ -1,9 +1,13 @@
 window.appendSystemMessage = function(text) {
     const messagesContainer = document.getElementById("messages-container");
     const messageDiv = document.createElement("div");
-    messageDiv.classList.add("self-start", "bg-gray-500", "text-white", "p-3", "rounded-lg", "text-xs", "max-w-xs", "text-center", "font-semibold");
-    messageDiv.textContent = text;
+    messageDiv.classList.add("bg-gray-60","border-b", "border-gray-400", "text-white", "w-full", "jsutify-center", "p-1", "text-xs", "text-center", "font-semibold");
+    messageDiv.textContent = text + " " + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     messagesContainer.appendChild(messageDiv);
+}
+function scrollToBottom() {
+    const messagesContainer = document.getElementById("messages-container");
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
 }
 window.appendMessage = function(name, text, time = null) {
     const messagesContainer = document.getElementById("messages-container");
@@ -40,6 +44,7 @@ window.handleChatEvent = function (data) {
         case "chat::message":
             if(data.meta.message == "") return
             window.appendMessage(data.sender.name, data.meta.message);
+            scrollToBottom()
             break;
         default:
             console.log(value, "Não reconhecido");
