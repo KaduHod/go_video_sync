@@ -238,7 +238,7 @@ func (self *VirtualRoomController) LoguedGuestRoomJoin(c echo.Context) error {
         return c.Redirect(303, "/app/user?error=Sala está cheia!")
     }
     if room.Admin == nil {
-        return self.defaultErrorReturn(errors.New("Room not found"), c)
+        return self.defaultErrorReturn(errors.New("Sala não encontrada!"), c)
     }
     if room.Admin != nil && room.Admin.Id == session.Values["user_id"] {
         return c.Redirect(303, "/app/room/"+roomName)
@@ -252,7 +252,10 @@ func (self *VirtualRoomController) LoguedGuestRoomJoin(c echo.Context) error {
     }
     if err:= self.virtualRoomsManager.GuestJoinRoom(user, c.FormValue("password"), roomName); err != nil {
         fmt.Println(err)
-        return c.Redirect(303, "/app/room/join/"+roomName)
+        if err.Error() == "Wrong password" {
+            return c.Redirect(303, "/app/join/room/"+roomName+"?error=Senha incorreta!")
+        }
+        return c.Redirect(303, "/app/join/room/"+roomName)
     }
     return c.Redirect(303, "/app/room/"+roomName)
 }
