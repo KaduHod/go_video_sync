@@ -7,6 +7,7 @@ import (
 	"kaduhod/video-sync/app/controllers"
 	app_middleware "kaduhod/video-sync/app/middlewares"
 	virtualrooms "kaduhod/video-sync/app/virtual_rooms"
+	"log"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -51,20 +52,38 @@ func customHTTPErrorHandler(err error, c echo.Context) {
     c.Render(code, errorPage, errors)
 }
 func main() {
+    args := os.Args
+    var env string
+    if len(args) < 2 {
+        env = "DEV"
+    } else {
+        env = args[1]
+    }
 	exePath, err := os.Executable()
 	if err != nil {
 		fmt.Println("Erro ao obter o caminho do executável:", err)
 		return
 	}
 
-	dir := filepath.Dir(exePath)
-    if err := godotenv.Load(".env.develop"); err != nil {
+	_ = filepath.Dir(exePath)
+    var envFile string
+    if env == "DEV" {
+        envFile = ".env.develop"
+    } else if env == "PROD" {
+        envFile = ".env.prod"
+    } else if env == "LOCAL" {
+        envFile = ".env.local"
+    } else {
+        log.Fatal("Ambiente passado não é valido >> ", env)
+    }
+    fmt.Println("Arquivo env >> ", envFile)
+    if err := godotenv.Load(envFile); err != nil {
         panic(err)
     }
     e := echo.New()
     e.HTTPErrorHandler = customHTTPErrorHandler
     t := &Template{
-        templates: template.Must(template.ParseGlob(dir+"/views/*.tmpl")),
+        templates: template.Must(template.ParseGlob("views/*.tmpl")),
     }
 	currentTime := func() string {
 		return time.Now().Format("02/01/2006 15:04:05.000") // Dia/mês/ano Hora:minuto:segundo.milissegundos
@@ -78,7 +97,7 @@ func main() {
         Store: store,
     }))
     e.Renderer = t
-    e.Static("/public", dir+"public")
+    e.Static("/public", "public")
     e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
         AllowOrigins: []string{os.Getenv("APP_URL")},
     }))
