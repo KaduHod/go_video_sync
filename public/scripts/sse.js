@@ -118,11 +118,10 @@ const handleNotificationEvents = (data) => {
     const {value} = data
     switch (value) {
         case "notification::user-leave":
-            console.log({data})
             window.adicionarNotificacao(`${data.sender.name} saiu da sala!`,"info")
             break;
         case "notification::user-join":
-            window.adicionarNotificacao(`${data.sender.name} entrou na sala!`,"info")
+            window.appendSystemMessage(`${data.sender.name} entrou na sala!`,"info");
             break;
         default:
             console.log("Tipo nao reconhecido", value)
@@ -167,7 +166,7 @@ const handlePlayerEvents = (data) => {
                 clearInterval(window.player_manager.interval);
                 window.player_manager.state = "waiting";
             }
-            window.adicionarNotificacao(`${data.sender.name} pausou o vídeo!`, "info")
+            window.appendSystemMessage(`${data.sender.name} pausou o vídeo!`, "info")
             break;
         case "player::resume":
             window.player.playVideo();
@@ -178,7 +177,7 @@ const handlePlayerEvents = (data) => {
                 }
                 window.player_manager.state = "playing";
             }
-            window.adicionarNotificacao(`${data.sender.name} deu play do vídeo!`, "info")
+            window.appendSystemMessage(`${data.sender.name} deu play do vídeo!`, "info")
             break;
         case "player::change-video":
             window.player.loadVideoById(window.getYouTubeVideoId(data.meta.url), 0); // Altera o vídeo para o novo ID
@@ -201,7 +200,7 @@ const handlePlayerEvents = (data) => {
             window.player_manager.time = parseInt(data.meta.time)
             window.markToolTip(parseInt(data.meta.time))
             window.dismarkToolTip(parseInt(data.meta.time))
-            window.adicionarNotificacao(`${data.sender.name} alterou o tempo do vídeo para ${window.formatarTempo(data.meta.time)}!`, "info")
+            window.appendSystemMessage(`${data.sender.name} alterou o tempo do vídeo para ${window.formatarTempo(data.meta.time)}!`, "info")
             break;
         default:
             console.log(value, "Não reconhecido");
