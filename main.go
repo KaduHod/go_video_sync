@@ -8,9 +8,11 @@ import (
 	app_middleware "kaduhod/video-sync/app/middlewares"
 	virtualrooms "kaduhod/video-sync/app/virtual_rooms"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/gorilla/sessions"
+	"github.com/joho/godotenv"
 	"github.com/labstack/echo-contrib/session"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
@@ -48,6 +50,9 @@ func customHTTPErrorHandler(err error, c echo.Context) {
     c.Render(code, errorPage, errors)
 }
 func main() {
+    if err := godotenv.Load(".env.develop"); err != nil {
+        panic(err)
+    }
     e := echo.New()
     e.HTTPErrorHandler = customHTTPErrorHandler
     t := &Template{
@@ -59,14 +64,15 @@ func main() {
 	e.Use(middleware.LoggerWithConfig(middleware.LoggerConfig{
         Format: fmt.Sprintf("[%s] path: ${uri} ${method} | status: ${status} | lat: ${latency}\n", currentTime()),
 	}))
-    var store = sessions.NewCookieStore([]byte("Chave aleatória"))
+    var store = sessions.NewCookieStore([]byte(os.Getenv("APP_KEY")))
+
     e.Use(session.MiddlewareWithConfig(session.Config{
         Store: store,
     }))
     e.Renderer = t
     e.Static("/public", "public")
     e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
-        AllowOrigins: []string{"http://localhost:3003"},
+        AllowOrigins: []string{os.Getenv("APP_URL")},
     }))
     manager := virtualrooms.NewVirtualRoomsManager()
     manager.Init()
