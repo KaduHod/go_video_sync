@@ -7,7 +7,7 @@
         <link href="/public/css/main.css" rel="stylesheet">
     </head>
     <style>
-    /* Customização da scrollbar */
+/* Customização da scrollbar */
 .custom-scrollbar::-webkit-scrollbar {
     width: 8px;
 }
@@ -48,7 +48,7 @@
         <main class="flex w-full h-screen flex-1 mt-4 flex-row items-start justify-center space-x-6">
             <!-- Player -->
             <div id="Player" class="w-2/3 flex flex-col items-center">
-            <div class="player-container bg-gray-800 p-4 rounded-lg flex flex-col items-center space-y-4 w-full">
+                <div class="player-container bg-gray-800 p-4 rounded-lg flex flex-col items-center space-y-4 w-full">
                     {{ if eq .user_type "Admin" }}
                     <div class="w-full flex justify-start space-x-4">
                         <button id="copiar-link" class="bg-purple-600 px-2 py-2 text-white rounded-md text-sm shadow-md hover:bg-purple-700 focus:outline-none focus:ring-4 focus:ring-purple-500 transition-all">
@@ -75,16 +75,10 @@
                     </div>
                 </div>
             </div>
-
-
-
-
-            <div id="chat-container" class="w-1/3 h-fit bg-gray-800 p-4 rounded-lg flex flex-col items-center space-y-4">
+            <div id="chat-container" class="w-1/3 h-fit bg-gray-800 p-4 rounded-lg flex-col items-center space-y-4">
                 <h2 class="text-lg font-semibold text-white">Chat</h2>
-<!--                <div id="messages-container" class="w-full flex flex-col flex-1 bg-gray-700 rounded-md p-2 overflow-auto space-y-2">
-</div>-->
-<div id="messages-container" class="w-full flex flex-col flex-1 bg-gray-700 rounded-md p-2 overflow-auto space-y-2 max-h-[300px] custom-scrollbar">
-    </div>
+                <div id="messages-container" class="w-full flex flex-col max-h-96 bg-gray-700 rounded-md p-2 overflow-x-hidden space-y-2 custom-scrollbar">
+                </div>
                 <div class="w-full flex items-center space-x-2 mt-2">
                     <input type="text" id="chat-input" class="flex-1 p-2 bg-gray-700 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 transition" placeholder="Digite uma mensagem..." />
                     <button id="send-message" class="p-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 transition">

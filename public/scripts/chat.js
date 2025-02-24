@@ -1,7 +1,7 @@
 window.appendSystemMessage = function(text) {
     const messagesContainer = document.getElementById("messages-container");
     const messageDiv = document.createElement("div");
-    messageDiv.classList.add("bg-gray-60","border-b", "border-gray-400", "text-white", "w-full", "jsutify-center", "p-1", "text-xs", "text-center", "font-semibold");
+    messageDiv.classList.add("bg-gray-60","border-b", "border-gray-400", "text-white", "w-full", "break-words", "whitespace-pre-wrap", "jsutify-center", "p-1", "text-xs", "text-center", "font-semibold");
     messageDiv.textContent = text + " " + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     messagesContainer.appendChild(messageDiv);
 }
@@ -16,6 +16,7 @@ window.appendMessage = function(name, text, time = null) {
     messageDiv.classList.add(name === window.user_name ? "self-end" : "self-start", "text-sm");
     messageDiv.classList.add(name === window.user_name ? "bg-purple-600" : "bg-red-500", "text-white", "p-2", "rounded-lg", "max-w-xs");
     const messageText = document.createElement("div");
+    messageText.classList.add("break-words", "whitespace-pre-wrap", "max-w-xs");
     messageText.textContent = text;
     const footerDiv = document.createElement("div");
     footerDiv.classList.add("text-xs", "text-gray-300", "mt-1", "flex", "justify-between");
