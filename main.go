@@ -9,6 +9,7 @@ import (
 	virtualrooms "kaduhod/video-sync/app/virtual_rooms"
 	"net/http"
 	"os"
+	"path/filepath"
 	"time"
 
 	"github.com/gorilla/sessions"
@@ -50,13 +51,20 @@ func customHTTPErrorHandler(err error, c echo.Context) {
     c.Render(code, errorPage, errors)
 }
 func main() {
+	exePath, err := os.Executable()
+	if err != nil {
+		fmt.Println("Erro ao obter o caminho do executável:", err)
+		return
+	}
+
+	dir := filepath.Dir(exePath)
     if err := godotenv.Load(".env.develop"); err != nil {
         panic(err)
     }
     e := echo.New()
     e.HTTPErrorHandler = customHTTPErrorHandler
     t := &Template{
-        templates: template.Must(template.ParseGlob("./views/*.tmpl")),
+        templates: template.Must(template.ParseGlob(dir+"/views/*.tmpl")),
     }
 	currentTime := func() string {
 		return time.Now().Format("02/01/2006 15:04:05.000") // Dia/mês/ano Hora:minuto:segundo.milissegundos
@@ -70,7 +78,7 @@ func main() {
         Store: store,
     }))
     e.Renderer = t
-    e.Static("/public", "public")
+    e.Static("/public", dir+"public")
     e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
         AllowOrigins: []string{os.Getenv("APP_URL")},
     }))
