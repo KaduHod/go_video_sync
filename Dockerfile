@@ -21,10 +21,11 @@ COPY views /app/views
 COPY public /app/public
 COPY .env.prod /app/.env.prod
 COPY .env.develop /app/.env.develop
+COPY .env.local /app/.env.local
 
 # Expõe a porta da aplicação
 EXPOSE 3003
 
 # Define o comando de execução
-CMD ["/app/video-sync"]
+CMD ["/app/video-sync", "PROD"]
 
