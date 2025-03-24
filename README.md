@@ -1,4 +1,4 @@
-# Aplicativo de Sala Virtual
+# Video Sync
 
 Este aplicativo permite que os usuários criem salas virtuais onde até duas pessoas podem compartilhar e assistir vídeos do YouTube de forma sincronizada. O app inclui recursos como controle de reprodução sincronizada (play, pause, avançar), troca de vídeo, um chat integrado e notificações em tempo real usando Server-Sent Events (SSE).
 
