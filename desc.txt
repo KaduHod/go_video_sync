@@ -1,1 +1,1 @@
-Video Sync é um aplicativo que permite a criação de salas virtuais onde duas pessoas podem assistir a vídeos do YouTube de forma sincronizada. Os usuários têm controle compartilhado da reprodução e podem trocar vídeos em tempo real. Além disso, o app inclui um chat integrado e notificações instantâneas, proporcionando uma experiência interativa e conectada.
+Aplicativo para assistir vídeos do YouTube de forma sincronizada em salas virtuais para dois usuários. Inclui chat integrado, notificações e controles compartilhados.
