@@ -35,11 +35,3 @@ Este aplicativo permite que os usuários criem salas virtuais onde até duas pes
 1. Clone o repositório.
 2. Instale as dependências usando `go mod tidy`.
 3. Execute o aplicativo com `go run main.go`.
-
-## Contribuição
-
-Contribuições são bem-vindas! Abra uma issue ou envie um pull request para melhorias ou correções de bugs.
-
-## Licença
-
-Este projeto está licenciado sob a Licença MIT. Consulte o arquivo LICENSE para mais detalhes.
